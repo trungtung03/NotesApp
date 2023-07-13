@@ -145,7 +145,9 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         setTime(
             dateMilli,
             dateMilli.toInt(),
-            mBinding.EditTextTitle.text.toString(),
+            "Đã đến giờ thực hiện công việc: ${
+                mBinding.EditTextTitle.text.toString()
+            }",
             mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
         )
         openActivity(
