@@ -283,6 +283,7 @@ class NotesArchiveActivity : BaseActivity() {
             notesModel.timeSet = timeSet
         }
         mDatabaseHelper?.updateNote(notesModel, "archive")
+        mDatabaseHelper?.getAllNotes(Table.type_archive)
         backToMain()
     }
 

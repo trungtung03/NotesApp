@@ -283,6 +283,7 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.timeSet = timeSet
         }
         mDatabaseHelper?.updateNote(notesModel, "recycle")
+        mDatabaseHelper?.getAllNotes(Table.type_recycle)
         backToMain()
     }
 

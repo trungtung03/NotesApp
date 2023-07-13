@@ -82,6 +82,7 @@ class MainActivity : BaseActivity() {
             if (mIntent.getString("recycle").equals("recycle")) {
                 mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = true
                 mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = false
+                searchItem?.isVisible = false
                 replaceFragment(
                     LayoutFragment,
                     TrashCanFragment.newInstance(),
@@ -92,6 +93,7 @@ class MainActivity : BaseActivity() {
             } else if (mIntent.getString("archive").equals("archive")) {
                 mBinding.NavigationView.menu.findItem(id.item_archived).isChecked = true
                 mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = false
+                searchItem?.isVisible = false
                 replaceFragment(
                     LayoutFragment,
                     ArchiveFragment.newInstance(),
@@ -246,6 +248,8 @@ class MainActivity : BaseActivity() {
         } else {
             mBinding.ButtonDeleteAll.visibility = GONE
             mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = true
+            mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = false
+            mBinding.NavigationView.menu.findItem(id.item_archived).isChecked = false
             mBinding.TextTitle.text = getString(R.string.app_name)
             replaceFragment(
                 LayoutFragment,

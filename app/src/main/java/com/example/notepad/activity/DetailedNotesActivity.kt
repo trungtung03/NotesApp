@@ -188,7 +188,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
             notesModel.timeSet = timeSet
         }
         mDatabaseHelper?.updateNote(notesModel, "note")
-
+        mDatabaseHelper?.getAllNotes(Table.type_note)
         openActivity(
             MainActivity::
             class.java
