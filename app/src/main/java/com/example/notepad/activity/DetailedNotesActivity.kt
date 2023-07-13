@@ -105,7 +105,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
             R.id.detail_note_delete -> {
                 mList.let {
                     val detailsNoteId = it.getOrNull(position)
-                    Log.d("ml_", detailsNoteId?.milliSeconds.toString())
                     cancelPending(detailsNoteId?.milliSeconds?.toInt() ?: -1)
                 }
                 mDatabaseHelper?.insertNote(notesModel, "recycle")
@@ -118,7 +117,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
             R.id.detail_note_archive -> {
                 mList.let {
                     val detailsNoteId = it.getOrNull(position)
-                    Log.d("ml_", detailsNoteId?.milliSeconds.toString())
                     cancelPending(detailsNoteId?.milliSeconds?.toInt() ?: -1)
                 }
                 mDatabaseHelper?.insertNote(notesModel, "archive")

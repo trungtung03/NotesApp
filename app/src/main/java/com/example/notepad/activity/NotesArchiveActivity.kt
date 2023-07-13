@@ -110,7 +110,7 @@ class NotesArchiveActivity : BaseActivity() {
                     Log.d("minus_time", totalMilli.toString())
                     if (totalMilli <= 0) {
                         500.toLong().setTime(
-                            Random.nextInt(1,500),
+                            Random.nextInt(1, 500),
                             "Bạn có một ghi chú đã cũ: ${
                                 mBinding.TextTitleArchiveNotes.text.toString().trim()
                             }"
@@ -131,6 +131,9 @@ class NotesArchiveActivity : BaseActivity() {
                                 ?: 0
                         )
                     }
+                } else {
+                    mDatabaseHelper?.insertNote(notesModel, "note")
+                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
                 mDatabaseHelper?.deleteNoteByID(noteID, "archive")
                 mDatabaseHelper?.getAllNotes(Table.type_archive)

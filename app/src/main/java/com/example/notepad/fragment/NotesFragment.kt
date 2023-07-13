@@ -66,6 +66,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>() {
                 notesModel.milliSeconds = -1
                 notesModel.timeSet = ""
                 mDatabaseHelper!!.deleteTimeSet(notesModel,"note")
+                mDatabaseHelper?.getAllNotes(Table.type_note)
             }
         })
 

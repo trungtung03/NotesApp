@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
+import android.provider.ContactsContract.CommonDataKinds.Note
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
@@ -47,7 +48,8 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     private lateinit var dateInstance: String
     private lateinit var timeInstance: String
     private var dateMilli: Long = -1
-    private lateinit var timeSet: String
+    private var timeSet: String = ""
+    private var pathImage: String = ""
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -92,7 +94,15 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
         mBinding.ButtonBack.setOnClickListener {
-            setDataToBundle("note")
+            setDataToBundle(Table.type_note)
+            setTime(
+                dateMilli,
+                dateMilli.toInt(),
+                "Đã đến giờ thực hiện công việc: ${
+                    mBinding.EditTextTitle.text.toString()
+                }",
+                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
+            )
         }
 
         mBinding.TextViewDateTime.text =
@@ -129,8 +139,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         notesModel.timeNote = mBinding.TextViewDateTime.text.toString().trim()
         if (mUri != null) {
             notesModel.image = getPath(mUri)
+            pathImage = getPath(mUri).toString()
         } else {
             notesModel.image = ""
+            pathImage = ""
         }
 
         if (dateMilli < 0) {
@@ -141,15 +153,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.timeSet = timeSet
         }
         mDatabaseHelper?.insertNote(notesModel, table)
-        mDatabaseHelper?.getAllNotes(Table.type_note)
-        setTime(
-            dateMilli,
-            dateMilli.toInt(),
-            "Đã đến giờ thực hiện công việc: ${
-                mBinding.EditTextTitle.text.toString()
-            }",
-            mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
-        )
+        mDatabaseHelper?.getAllNotes(table)
         openActivity(
             MainActivity::
             class.java
@@ -173,7 +177,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             }
 
             R.id.take_note_archive -> {
-
+                setDataToBundle(Table.type_archive)
             }
 
             R.id.take_note_set_time -> {
@@ -194,7 +198,15 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     )
     override fun onBackPressed() {
         super.onBackPressed()
-        setDataToBundle("note")
+        setDataToBundle(Table.type_note)
+        setTime(
+            dateMilli,
+            dateMilli.toInt(),
+            "Đã đến giờ thực hiện công việc: ${
+                mBinding.EditTextTitle.text.toString()
+            }",
+            mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
+        )
     }
 
     @Deprecated("Deprecated in Java")

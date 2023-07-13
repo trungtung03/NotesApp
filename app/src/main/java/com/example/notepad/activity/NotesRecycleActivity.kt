@@ -133,6 +133,9 @@ class NotesRecycleActivity : BaseActivity() {
                                 ?: 0
                         )
                     }
+                } else {
+                    mDatabaseHelper?.insertNote(notesModel, "note")
+                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
                 mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
                 mDatabaseHelper?.getAllNotes(Table.type_recycle)
@@ -164,6 +167,7 @@ class NotesRecycleActivity : BaseActivity() {
             noteID = recycleNoteActivity.takeNoteID
             dateMilli = recycleNoteActivity.milliSeconds.toLong()
             timeSet = recycleNoteActivity.timeSet
+            Log.d("time_set", timeSet)
         }
     }
 
