@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Grey100"
+    android:elevation="1dp"
+    android:paddingStart="5dp"
+    android:paddingTop="5dp"
+    android:paddingEnd="5dp">
+
+    <LinearLayout
+        android:id="@+id/layout_6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:paddingStart="20dp">
+
+        <Button
+            android:id="@+id/btn_note"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_btn_fgm_default"
+            android:elevation="0dp"
+            android:text="@string/notes"
+            android:textAllCaps="false"
+            android:textColor="@color/Grey" />
+
+        <Button
+            android:id="@+id/btn_recycle"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:background="@drawable/bg_btn_fgm_default"
+            android:elevation="0dp"
+            android:text="@string/deleted"
+            android:textAllCaps="false"
+            android:textColor="@color/Grey" />
+
+        <Button
+            android:id="@+id/btn_archive"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_btn_fgm_default"
+            android:elevation="0dp"
+            android:text="@string/archive"
+            android:textAllCaps="false"
+            android:textColor="@color/Grey" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RecyclerSearch"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_6"
+        tools:listitem="@layout/item_rcv_list_note" />
+
+    <ImageView
+        android:id="@+id/ImageSearch"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/search_bg" />
+
+</RelativeLayout>

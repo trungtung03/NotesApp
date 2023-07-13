@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.NotesArchiveActivity">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/Cardview_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="3dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/ToolbarArchiveNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/ButtonBackArchiveNotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/arrow_back" />
+
+                <ImageButton
+                    android:id="@+id/ButtonShareArchiveNotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="25dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/share" />
+
+<!--                <ImageButton-->
+<!--                    android:id="@+id/ButtonPinArchiveNotes"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginEnd="30dp"-->
+<!--                    android:layout_toStartOf="@id/ButtonShareArchiveNotes"-->
+<!--                    android:background="@android:color/transparent"-->
+<!--                    android:src="@drawable/pin" />-->
+
+            </RelativeLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:id="@+id/ImageArchiveNotes"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_below="@id/Cardview_5"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/layout_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ImageArchiveNotes"
+        android:layout_marginTop="5dp">
+
+        <EditText
+            android:id="@+id/TextTitleArchiveNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent"
+            android:hint="@string/title"
+            android:padding="5dp"
+            android:paddingStart="20dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewDateTimeArchiveNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TextTitleArchiveNotes"
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:paddingStart="20dp"
+            android:textColor="@color/Grey"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@id/TextViewDateTimeArchiveNotes"
+            android:background="@color/Grey" />
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/TextArchiveNotes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_5"
+        android:background="@android:color/transparent"
+        android:gravity="start|top"
+        android:hint="@string/notes"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="@color/Black"
+        android:textSize="16sp" />
+
+</RelativeLayout>

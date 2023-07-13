@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Notepad</string>
+
+    <!-- Menu Options -->
+    <string name="share">Chia sẻ</string>
+    <string name="filter">Lọc</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="delete">Xóa</string>
+    <string name="restore">Khôi phục</string>
+    <string name="archive">Lưu trữ</string>
+    <string name="set_time">Hẹn giờ</string>
+    <string name="unarchive">Bỏ lưu trữ</string>
+    <string name="delete_all">Xóa toàn bộ</string>
+    <string name="change_color">Đổi màu</string>
+    <string name="delete_forever">Xóa vĩnh viễn</string>
+    <string name="add_image">Thêm ảnh</string>
+
+    <!-- Fragment Titles -->
+    <string name="notes">Ghi chú</string>
+    <string name="labels">Nhãn</string>
+    <string name="deleted">Thùng rác</string>
+    <string name="archived">Lưu trữ</string>
+    <string name="settings">Cài đặt</string>
+    <string name="title">Tựa đề</string>
+    <string name="empty_note_content">Nội dung ghi chú trống</string>
+
+</resources>
