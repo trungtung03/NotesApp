@@ -31,7 +31,6 @@ import com.example.notepad.fragment.SearchFragment
 import com.example.notepad.fragment.TrashCanFragment
 import com.example.notepad.model.NotesModel
 
-
 class MainActivity : BaseActivity() {
 
     companion object {
@@ -51,7 +50,13 @@ class MainActivity : BaseActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setupToolbar()
         setupNavigationMenu()
-        addFragment(LayoutFragment, NotesFragment.newInstance(), "NotesFragment", "NotesFragment")
+
+        addFragment(
+            LayoutFragment,
+            NotesFragment.newInstance(),
+            NotesFragment::class.java.simpleName,
+            NotesFragment::class.java.simpleName
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val notificationManager = getSystemService(
@@ -65,9 +70,7 @@ class MainActivity : BaseActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "notepad",
-                "NotePad",
-                NotificationManager.IMPORTANCE_DEFAULT
+                "notepad", "NotePad", NotificationManager.IMPORTANCE_DEFAULT
             )
             val notificationManager = getSystemService(
                 NotificationManager::class.java
@@ -86,7 +89,8 @@ class MainActivity : BaseActivity() {
                 replaceFragment(
                     LayoutFragment,
                     TrashCanFragment.newInstance(),
-                    "TrashCanFragment", "TrashCanFragment"
+                    TrashCanFragment::class.java.simpleName,
+                    TrashCanFragment::class.java.simpleName
                 )
                 mBinding.ButtonDeleteAll.visibility = VISIBLE
                 mBinding.TextTitle.text = getString(string.deleted)
@@ -97,7 +101,8 @@ class MainActivity : BaseActivity() {
                 replaceFragment(
                     LayoutFragment,
                     ArchiveFragment.newInstance(),
-                    "ArchiveFragment", "ArchiveFragment"
+                    ArchiveFragment::class.java.simpleName,
+                    ArchiveFragment::class.java.simpleName
                 )
                 mBinding.TextTitle.text = getString(string.archived)
             }
@@ -124,14 +129,16 @@ class MainActivity : BaseActivity() {
             when (menuItem.itemId) {
                 id.item_notes -> {
                     mBinding.DrawerLayout.closeDrawer(START)
-                    fm = supportFragmentManager.findFragmentByTag("NotesFragment")
+                    fm =
+                        supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
                     if (fm != null && !fm!!.isVisible) {
                         mBinding.ButtonDeleteAll.visibility = GONE
                         mBinding.TextTitle.text = getString(R.string.app_name)
                         replaceFragment(
                             LayoutFragment,
                             NotesFragment.newInstance(),
-                            "NotesFragment", "NotesFragment"
+                            NotesFragment::class.java.simpleName,
+                            NotesFragment::class.java.simpleName
                         )
                         searchItem?.isVisible = true
                     }
@@ -140,13 +147,15 @@ class MainActivity : BaseActivity() {
 
                 id.item_deleted -> {
                     mBinding.DrawerLayout.closeDrawer(START)
-                    fm = supportFragmentManager.findFragmentByTag("TrashCanFragment")
+                    fm =
+                        supportFragmentManager.findFragmentByTag(TrashCanFragment::class.java.simpleName)
                     if (fm == null || (fm != null && !fm!!.isVisible)) {
                         mBinding.TextTitle.text = getString(R.string.deleted)
                         replaceFragment(
                             LayoutFragment,
                             TrashCanFragment.newInstance(),
-                            "TrashCanFragment", "TrashCanFragment"
+                            TrashCanFragment::class.java.simpleName,
+                            TrashCanFragment::class.java.simpleName
                         )
                         mBinding.ButtonDeleteAll.visibility = VISIBLE
                         searchItem?.isVisible = false
@@ -156,13 +165,15 @@ class MainActivity : BaseActivity() {
 
                 id.item_archived -> {
                     mBinding.DrawerLayout.closeDrawer(START)
-                    fm = supportFragmentManager.findFragmentByTag("ArchiveFragment")
+                    fm =
+                        supportFragmentManager.findFragmentByTag(ArchiveFragment::class.java.simpleName)
                     if (fm == null || (fm != null && !fm!!.isVisible)) {
                         mBinding.TextTitle.text = getString(R.string.archived)
                         replaceFragment(
                             LayoutFragment,
                             ArchiveFragment.newInstance(),
-                            "ArchiveFragment", "ArchiveFragment"
+                            ArchiveFragment::class.java.simpleName,
+                            ArchiveFragment::class.java.simpleName
                         )
                         mBinding.ButtonDeleteAll.visibility = GONE
                         searchItem?.isVisible = false
@@ -186,7 +197,11 @@ class MainActivity : BaseActivity() {
         searchView.queryHint = "Search..."
         searchView.setOnQueryTextFocusChangeListener { _, p1 ->
             if (!p1) {
-                replaceFragment(LayoutFragment, NotesFragment.newInstance(), "NotesFragment")
+                replaceFragment(
+                    LayoutFragment,
+                    NotesFragment.newInstance(),
+                    NotesFragment::class.java.simpleName
+                )
             }
         }
         searchView.setOnQueryTextListener(object : OnQueryTextListener {
@@ -195,7 +210,7 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                fm = supportFragmentManager.findFragmentByTag("SearchFragment")
+                fm = supportFragmentManager.findFragmentByTag(SearchFragment::class.java.simpleName)
                 if (fm != null && fm!!.isVisible) {
                     if (newText!!.isEmpty()) {
                         mListData.clear()
@@ -205,8 +220,7 @@ class MainActivity : BaseActivity() {
                         mListData.clear()
                         mListData.addAll(
                             mDatabaseHelper!!.searchDataNotes(
-                                newText,
-                                SearchFragment.table
+                                newText, SearchFragment.table
                             )
                         )
                         SearchFragment.mNoteAdapter.setData(mListData)
@@ -223,7 +237,11 @@ class MainActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             id.menu_search -> {
-                replaceFragment(LayoutFragment, SearchFragment.newInstance(), "SearchFragment")
+                replaceFragment(
+                    LayoutFragment,
+                    SearchFragment.newInstance(),
+                    SearchFragment::class.java.simpleName
+                )
             }
         }
         return super.onOptionsItemSelected(item)
@@ -232,15 +250,15 @@ class MainActivity : BaseActivity() {
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        supportFragmentManager.popBackStack("NotesFragment", 0)
-        fm = supportFragmentManager.findFragmentByTag("NotesFragment")
+        supportFragmentManager.popBackStack(NotesFragment::class.java.simpleName, 0)
+        fm = supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
         if (fm != null && fm!!.isVisible) {
             backPressedCount++
             if (backPressedCount > 1) {
                 finish()
                 backPressedCount = 0
             } else {
-                createCustomToast(drawable.warning, "Go back again to exit the application")
+                createCustomToast(drawable.warning, resources.getString(string.message_toast))
                 Handler().postDelayed({
                     backPressedCount = 0
                 }, 3000)
@@ -254,8 +272,8 @@ class MainActivity : BaseActivity() {
             replaceFragment(
                 LayoutFragment,
                 NotesFragment.newInstance(),
-                "NotesFragment",
-                "NotesFragment"
+                NotesFragment::class.java.simpleName,
+                NotesFragment::class.java.simpleName
             )
             searchItem?.isVisible = true
         }

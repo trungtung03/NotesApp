@@ -41,6 +41,8 @@ class NotesArchiveActivity : BaseActivity() {
     val notesModel = NotesModel()
     var dateMilli: Long = -1
     var timeSet = ""
+    var position = -1
+    var position_search = -1
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -66,10 +68,11 @@ class NotesArchiveActivity : BaseActivity() {
     }
 
     private fun actionView() {
-        val position = intent.getIntExtra("position_archive", -1)
+        position = intent.getIntExtra("position_archive", -1)
+        position_search = intent.getIntExtra("search_archive", -1)
 
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
-        getData(position)
+        getData(position, position_search)
 
         mBinding.ButtonBackArchiveNotes.setOnClickListener { setDataToBundle() }
 
@@ -111,7 +114,7 @@ class NotesArchiveActivity : BaseActivity() {
                     if (totalMilli <= 0) {
                         500.toLong().setTime(
                             Random.nextInt(1, 500),
-                            "Bạn có một ghi chú đã cũ: ${
+                            "${resources.getString(R.string.old_note_notification)} ${
                                 mBinding.TextTitleArchiveNotes.text.toString().trim()
                             }"
                         )
@@ -122,9 +125,9 @@ class NotesArchiveActivity : BaseActivity() {
                     } else {
                         mDatabaseHelper?.insertNote(notesModel, "note")
                         mDatabaseHelper?.getAllNotes(Table.type_note)
-                        dateMilli?.setTimeInId(
-                            dateMilli!!.toInt(),
-                            "Đã đến giờ thực hiện công việc: ${
+                        dateMilli.setTimeInId(
+                            dateMilli.toInt(),
+                            "${resources.getString(R.string.note_notification)} ${
                                 mBinding.TextTitleArchiveNotes.text.toString().trim()
                             }",
                             mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID
@@ -181,20 +184,45 @@ class NotesArchiveActivity : BaseActivity() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private fun getData(position: Int) {
-        mDatabaseHelper?.getLiveData(Table.type_archive)?.value?.let {
-            val archiveNoteActivity = it.getOrNull(position)
-            mBinding.TextTitleArchiveNotes.setText(archiveNoteActivity?.title)
-            mBinding.TextViewDateTimeArchiveNotes.text = archiveNoteActivity?.timeNote
-            mBinding.TextArchiveNotes.setText(archiveNoteActivity?.notes)
-            if (archiveNoteActivity?.image!!.isNotEmpty()) {
-                Glide.with(this).load(archiveNoteActivity.image).into(mBinding.ImageArchiveNotes)
-                pathImage = archiveNoteActivity.image
-                mBinding.ImageArchiveNotes.visibility = View.VISIBLE
+    private fun getData(position: Int, position_search: Int) {
+        if (position >= 0 && position_search < 0) {
+            mDatabaseHelper?.getLiveData(Table.type_archive)?.value?.let {
+                val archiveNoteActivity = it.getOrNull(position)
+                mBinding.TextTitleArchiveNotes.setText(archiveNoteActivity?.title)
+                mBinding.TextViewDateTimeArchiveNotes.text = archiveNoteActivity?.timeNote
+                mBinding.TextArchiveNotes.setText(archiveNoteActivity?.notes)
+                if (archiveNoteActivity?.image!!.isNotEmpty()) {
+                    Glide.with(this).load(archiveNoteActivity.image)
+                        .into(mBinding.ImageArchiveNotes)
+                    pathImage = archiveNoteActivity.image
+                    mBinding.ImageArchiveNotes.visibility = View.VISIBLE
+                }
+                noteID = archiveNoteActivity.takeNoteID
+                dateMilli = archiveNoteActivity.milliSeconds.toLong()
+                timeSet = archiveNoteActivity.timeSet
             }
-            noteID = archiveNoteActivity.takeNoteID
-            dateMilli = archiveNoteActivity.milliSeconds.toLong()
-            timeSet = archiveNoteActivity.timeSet
+        } else if (position < 0 && position_search >= 0) {
+            mDatabaseHelper?.getNotesByID(Table.type_archive, position_search).let {
+                if (it != null) {
+                    for (mListSearch in it) {
+                        if (position_search == mListSearch.takeNoteID) {
+                            mBinding.TextTitleArchiveNotes.setText(mListSearch?.title)
+                            mBinding.TextViewDateTimeArchiveNotes.text = mListSearch?.timeNote
+                            mBinding.TextArchiveNotes.setText(mListSearch?.notes)
+                            if (mListSearch?.image!!.isNotEmpty()) {
+                                Glide.with(this).load(mListSearch.image)
+                                    .into(mBinding.ImageArchiveNotes)
+                                pathImage = mListSearch.image
+                                mBinding.ImageArchiveNotes.visibility = View.VISIBLE
+                            }
+                            noteID = mListSearch.takeNoteID
+                            dateMilli = mListSearch.milliSeconds.toLong()
+                            timeSet = mListSearch.timeSet
+                            Log.d("time_set", mListSearch.takeNoteID.toString())
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -287,15 +315,23 @@ class NotesArchiveActivity : BaseActivity() {
         }
         mDatabaseHelper?.updateNote(notesModel, "archive")
         mDatabaseHelper?.getAllNotes(Table.type_archive)
-        backToMain()
+        backToArchive()
     }
 
-    private fun backToMain() {
+    private fun backToArchive() {
         val mIntent = Intent(this@NotesArchiveActivity, MainActivity::class.java)
         mIntent.putExtra("archive", "archive")
         startActivity(mIntent)
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out)
         finish()
+    }
+
+    private fun backToMain() {
+        if (position >= 0 && position_search < 0) {
+            backToArchive()
+        } else if (position < 0 && position_search >= 0) {
+            openActivity(MainActivity::class.java)
+        }
     }
 
     @Deprecated("Deprecated in Java")

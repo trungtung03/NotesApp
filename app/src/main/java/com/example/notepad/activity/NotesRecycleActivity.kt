@@ -39,6 +39,7 @@ class NotesRecycleActivity : BaseActivity() {
     private val TITLE_INTENT_RESULT_LAUNCHER = "Select picture"
     private val PERMISSION_FAIL = "Please allow the app to access the photo storage"
     var position = -1
+    var position_search = -1
     var dateMilli: Long? = -1
     lateinit var mList: List<NotesModel>
     val notesModel = NotesModel()
@@ -69,9 +70,10 @@ class NotesRecycleActivity : BaseActivity() {
 
     private fun actionView() {
         position = intent.getIntExtra("position_recycle", -1)
+        position_search = intent.getIntExtra("search_recycle", -1)
 
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
-        getData(position)
+        getData(position, position_search)
 
         mBinding.ButtonBackRecycleNotes.setOnClickListener { setDataToBundle() }
 
@@ -112,8 +114,8 @@ class NotesRecycleActivity : BaseActivity() {
                     Log.d("minus_time", totalMilli.toString())
                     if (totalMilli <= 0) {
                         500.toLong().setTime(
-                            Random.nextInt(1,500),
-                            "Bạn có một ghi chú đã cũ: ${
+                            Random.nextInt(1, 500),
+                            "${resources.getString(R.string.old_note_notification)} ${
                                 mBinding.TextTitleRecycleNotes.text.toString().trim()
                             }"
                         )
@@ -126,7 +128,7 @@ class NotesRecycleActivity : BaseActivity() {
                         mDatabaseHelper?.getAllNotes(Table.type_note)
                         dateMilli?.setTimeInId(
                             dateMilli!!.toInt(),
-                            "Đã đến giờ thực hiện công việc: ${
+                            "${resources.getString(R.string.note_notification)} ${
                                 mBinding.TextTitleRecycleNotes.text.toString().trim()
                             }",
                             mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID
@@ -152,22 +154,47 @@ class NotesRecycleActivity : BaseActivity() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private fun getData(position: Int) {
-        mDatabaseHelper?.getLiveData(Table.type_recycle)?.value?.let {
-            mList = it
-            val recycleNoteActivity = it.getOrNull(position)
-            mBinding.TextTitleRecycleNotes.setText(recycleNoteActivity?.title)
-            mBinding.TextViewDateTimeRecycleNotes.text = recycleNoteActivity?.timeNote
-            mBinding.TextRecycleNotes.setText(recycleNoteActivity?.notes)
-            if (recycleNoteActivity?.image!!.isNotEmpty()) {
-                Glide.with(this).load(recycleNoteActivity.image).into(mBinding.ImageRecycleNotes)
-                pathImage = recycleNoteActivity.image
-                mBinding.ImageRecycleNotes.visibility = View.VISIBLE
+    private fun getData(position: Int, position_search: Int) {
+        if (position >= 0 && position_search < 0) {
+            mDatabaseHelper?.getLiveData(Table.type_recycle)?.value?.let {
+                mList = it
+                val recycleNoteActivity = it.getOrNull(position)
+                mBinding.TextTitleRecycleNotes.setText(recycleNoteActivity?.title)
+                mBinding.TextViewDateTimeRecycleNotes.text = recycleNoteActivity?.timeNote
+                mBinding.TextRecycleNotes.setText(recycleNoteActivity?.notes)
+                if (recycleNoteActivity?.image!!.isNotEmpty()) {
+                    Glide.with(this).load(recycleNoteActivity.image)
+                        .into(mBinding.ImageRecycleNotes)
+                    pathImage = recycleNoteActivity.image
+                    mBinding.ImageRecycleNotes.visibility = View.VISIBLE
+                }
+                noteID = recycleNoteActivity.takeNoteID
+                dateMilli = recycleNoteActivity.milliSeconds.toLong()
+                timeSet = recycleNoteActivity.timeSet
+                Log.d("time_set", position.toString())
             }
-            noteID = recycleNoteActivity.takeNoteID
-            dateMilli = recycleNoteActivity.milliSeconds.toLong()
-            timeSet = recycleNoteActivity.timeSet
-            Log.d("time_set", timeSet)
+        } else if (position < 0 && position_search >= 0) {
+            mDatabaseHelper?.getNotesByID(Table.type_recycle, position_search).let {
+                if (it != null) {
+                    for (mListSearch in it) {
+                        if (position_search == mListSearch.takeNoteID) {
+                            mBinding.TextTitleRecycleNotes.setText(mListSearch?.title)
+                            mBinding.TextViewDateTimeRecycleNotes.text = mListSearch?.timeNote
+                            mBinding.TextRecycleNotes.setText(mListSearch?.notes)
+                            if (mListSearch?.image!!.isNotEmpty()) {
+                                Glide.with(this).load(mListSearch.image)
+                                    .into(mBinding.ImageRecycleNotes)
+                                pathImage = mListSearch.image
+                                mBinding.ImageRecycleNotes.visibility = View.VISIBLE
+                            }
+                            noteID = mListSearch.takeNoteID
+                            dateMilli = mListSearch.milliSeconds.toLong()
+                            timeSet = mListSearch.timeSet
+                            Log.d("time_set", mListSearch.takeNoteID.toString())
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -288,15 +315,23 @@ class NotesRecycleActivity : BaseActivity() {
         }
         mDatabaseHelper?.updateNote(notesModel, "recycle")
         mDatabaseHelper?.getAllNotes(Table.type_recycle)
-        backToMain()
+        backToRecycle()
     }
 
-    private fun backToMain() {
+    private fun backToRecycle() {
         val mIntent = Intent(this@NotesRecycleActivity, MainActivity::class.java)
         mIntent.putExtra("recycle", "recycle")
         startActivity(mIntent)
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out)
         finish()
+    }
+
+    private fun backToMain() {
+        if (position >= 0 && position_search < 0) {
+            backToRecycle()
+        } else if (position < 0 && position_search >= 0) {
+            openActivity(MainActivity::class.java)
+        }
     }
 
     @Deprecated("Deprecated in Java")

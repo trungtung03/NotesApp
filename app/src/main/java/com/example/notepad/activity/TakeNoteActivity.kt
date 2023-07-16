@@ -98,10 +98,11 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             setTime(
                 dateMilli,
                 dateMilli.toInt(),
-                "Đã đến giờ thực hiện công việc: ${
+                "${resources.getString(R.string.note_notification)} ${
                     mBinding.EditTextTitle.text.toString()
                 }",
-                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
+                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
+                    ?: 0,
             )
         }
 
@@ -183,7 +184,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             R.id.take_note_set_time -> {
                 val datePicker = DatePickerDialog()
                 datePicker.setListener(this@TakeNoteActivity)
-                datePicker.show(supportFragmentManager, "DatePicker")
+                datePicker.show(
+                    supportFragmentManager,
+                    DatePickerDialog::class.java.simpleName.toString()
+                )
             }
         }
         return super.onOptionsItemSelected(item)
@@ -202,7 +206,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         setTime(
             dateMilli,
             dateMilli.toInt(),
-            "Đã đến giờ thực hiện công việc: ${
+            "${resources.getString(R.string.note_notification)} ${
                 mBinding.EditTextTitle.text.toString()
             }",
             mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
@@ -259,7 +263,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         dateMilli = date!!.time - Calendar.getInstance().timeInMillis
         timeSet = "$dateInstance $p1:$p2"
         if (dateMilli < 0) {
-            createCustomToast(R.drawable.warning, "Không được chọn giờ nhỏ hơn giờ hiện tại")
+            createCustomToast(
+                R.drawable.warning,
+                resources.getString(R.string.set_time_notification)
+            )
         }
     }
 

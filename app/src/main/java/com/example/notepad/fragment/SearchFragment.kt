@@ -56,12 +56,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
         mNoteAdapter = NotesAdapter(requireActivity(),
             onClickItem = {
                 val mIntent = Intent(activity, destinationClass)
-                val index = mNoteAdapter.getListItem().indexOf(it)
-                Log.d("alo ", index.toString())
-                Log.d("alo ", it.toString())
-                mIntent.putExtra(key, index)
-                startActivity(mIntent)
-                activity?.overridePendingTransition(R.anim.slide_in, R.anim.fade_out)
+                MainActivity.mListData.let { it2 ->
+                    val index = it2.getOrNull(mNoteAdapter.getListItem().indexOf(it))
+                    Log.d("alo ", index.toString())
+                    Log.d("alo ", index?.takeNoteID.toString())
+                    mIntent.putExtra(key, index?.takeNoteID)
+                    startActivity(mIntent)
+                    activity?.overridePendingTransition(R.anim.slide_in, R.anim.fade_out)
+                }
             }, onClickClose = {})
 
         mBinding.RecyclerSearch.layoutManager =
@@ -71,7 +73,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
         if (mBinding.btnNote.isEnabled) {
             mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm)
             table = "note"
-            key = "position_detail"
+            key = "search_detail"
             destinationClass = DetailedNotesActivity::class.java
         }
     }
@@ -83,7 +85,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 table = "note"
-                key = "position_detail"
+                key = "search_detail"
                 destinationClass = DetailedNotesActivity::class.java
             }
 
@@ -92,7 +94,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 table = "recycle"
-                key = "position_recycle"
+                key = "search_recycle"
                 destinationClass = NotesRecycleActivity::class.java
             }
 
@@ -101,7 +103,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 table = "archive"
-                key = "position_archive"
+                key = "search_archive"
                 destinationClass = NotesArchiveActivity::class.java
             }
         }

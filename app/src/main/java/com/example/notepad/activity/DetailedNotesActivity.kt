@@ -3,6 +3,7 @@ package com.example.notepad.activity
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -26,8 +28,14 @@ import com.example.notepad.base.BaseActivity
 import com.example.notepad.custom.Table
 import com.example.notepad.databinding.ActivityDetailedNotesBinding
 import com.example.notepad.model.NotesModel
+import com.facebook.CallbackManager
+import com.facebook.FacebookSdk
+import com.facebook.messenger.ShareToMessengerParams
+import com.facebook.share.model.ShareLinkContent
+import com.facebook.share.widget.ShareDialog
 import java.text.SimpleDateFormat
 import java.util.Calendar
+
 
 class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
 
@@ -43,7 +51,9 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     var dateMilli: Long? = -1
     lateinit var mList: List<NotesModel>
     var position = -1
+    var position_search = -1
     var timeSet = ""
+    lateinit var callback: CallbackManager
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -66,13 +76,20 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         mBinding = ActivityDetailedNotesBinding.inflate(layoutInflater)
         setSupportActionBar(mBinding.ToolbarDetailNotes)
 
+        FacebookSdk.setClientToken("4220eefecece56c04f7a9992e3d3de86")
+        FacebookSdk.setApplicationId("3516244145330325")
+        FacebookSdk.sdkInitialize(this@DetailedNotesActivity);
+        callback = CallbackManager.Factory.create();
+
         position = intent.getIntExtra("position_detail", -1)
+        position_search = intent.getIntExtra("search_detail", -1)
 
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
-        getData(position)
+        getData(position, position_search)
 
         mBinding.ButtonBackDetailNotes.setOnClickListener(this)
+        mBinding.ButtonShareDetailNotes.setOnClickListener(this)
 
         notesModel.takeNoteID = noteID
         notesModel.title = mBinding.TextTitleDetailNotes.text.toString().trim()
@@ -130,21 +147,45 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     }
 
     @SuppressLint("SuspiciousIndentation", "SetTextI18n")
-    private fun getData(position: Int) {
-        mDatabaseHelper?.getLiveData(Table.type_note)?.value?.let {
-            mList = it
-            val detailsNoteActivity = it.getOrNull(position)
-            mBinding.TextTitleDetailNotes.setText(detailsNoteActivity?.title)
-            mBinding.TextViewDateTimeDetailNotes.text = detailsNoteActivity?.timeNote
-            mBinding.TextDetailNotes.setText(detailsNoteActivity?.notes)
-            if (detailsNoteActivity?.image!!.isNotEmpty()) {
-                Glide.with(this).load(detailsNoteActivity.image).into(mBinding.ImageDetailNotes)
-                pathImage = detailsNoteActivity.image
-                mBinding.ImageDetailNotes.visibility = VISIBLE
+    private fun getData(position: Int, position_search: Int) {
+        if (position >= 0 && position_search < 0) {
+            mDatabaseHelper?.getLiveData(Table.type_note)?.value?.let {
+                mList = it
+                val detailsNoteActivity = it.getOrNull(position)
+                mBinding.TextTitleDetailNotes.setText(detailsNoteActivity?.title)
+                mBinding.TextViewDateTimeDetailNotes.text = detailsNoteActivity?.timeNote
+                mBinding.TextDetailNotes.setText(detailsNoteActivity?.notes)
+                if (detailsNoteActivity?.image!!.isNotEmpty()) {
+                    Glide.with(this).load(detailsNoteActivity.image).into(mBinding.ImageDetailNotes)
+                    pathImage = detailsNoteActivity.image
+                    mBinding.ImageDetailNotes.visibility = VISIBLE
+                }
+                noteID = detailsNoteActivity.takeNoteID
+                dateMilli = detailsNoteActivity.milliSeconds.toLong()
+                timeSet = detailsNoteActivity.timeSet
             }
-            noteID = detailsNoteActivity.takeNoteID
-            dateMilli = detailsNoteActivity.milliSeconds.toLong()
-            timeSet = detailsNoteActivity.timeSet
+        } else if (position < 0 && position_search >= 0) {
+            mDatabaseHelper?.getNotesByID(Table.type_note, position_search).let {
+                if (it != null) {
+                    for (mListSearch in it) {
+                        if (position_search == mListSearch.takeNoteID) {
+                            mBinding.TextTitleDetailNotes.setText(mListSearch?.title)
+                            mBinding.TextViewDateTimeDetailNotes.text = mListSearch?.timeNote
+                            mBinding.TextDetailNotes.setText(mListSearch?.notes)
+                            if (mListSearch?.image!!.isNotEmpty()) {
+                                Glide.with(this).load(mListSearch.image)
+                                    .into(mBinding.ImageDetailNotes)
+                                pathImage = mListSearch.image
+                                mBinding.ImageDetailNotes.visibility = View.VISIBLE
+                            }
+                            noteID = mListSearch.takeNoteID
+                            dateMilli = mListSearch.milliSeconds.toLong()
+                            timeSet = mListSearch.timeSet
+                            Log.d("time_set", mListSearch.takeNoteID.toString())
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -211,10 +252,19 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         return path
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        callback.onActivityResult(requestCode, resultCode, data)
+    }
+private val REQUEST_CODE_SHARE_TO_MESSENGER = -1
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.ButtonBackDetailNotes -> {
                 setDataToBundle()
+            }
+
+            R.id.ButtonShareDetailNotes -> {
+
             }
         }
     }

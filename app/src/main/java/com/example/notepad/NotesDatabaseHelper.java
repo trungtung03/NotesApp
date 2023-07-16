@@ -104,6 +104,29 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public List<NotesModel> getNotesByID(String table, int id) {
+
+        List<NotesModel> mListData = new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet FROM '" + table + "' WHERE '" + id + "' ORDER BY id DESC", null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int takeNoteID = cursor.getInt(0);
+            String titleNote = cursor.getString(1);
+            String imageNote = cursor.getString(2);
+            String timeNote = cursor.getString(3);
+            String noteContent = cursor.getString(4);
+            int milliSeconds = cursor.getInt(5);
+            String timeSet = cursor.getString(6);
+
+            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return mListData;
+    }
+
     @SuppressLint("Range")
     public List<NotesModel> searchDataNotes(String keyword, String table) {
 

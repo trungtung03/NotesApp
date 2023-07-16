@@ -24,4 +24,8 @@
     <string name="title">Tựa đề</string>
     <string name="empty_note_content">Nội dung ghi chú trống</string>
 
+    <string name="message_toast">Nhấn quay lại lần nữa để thoát khỏi ứng dụng</string>
+    <string name="old_note_notification">Bạn có một ghi chú đã cũ:</string>
+    <string name="note_notification">Đã đến giờ:</string>
+    <string name="set_time_notification">Không được chọn thời gian nhỏ hơn hoặc bằng thời gian hiện tại</string>
 </resources>
