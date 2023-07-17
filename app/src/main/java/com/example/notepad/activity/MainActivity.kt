@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -43,6 +44,9 @@ class MainActivity : BaseActivity() {
     private var fm: Fragment? = null
     private var searchItem: MenuItem? = null
     lateinit var searchView: SearchView
+    var isCheckHideMenu: String? = null
+    var mMenu: Menu? = null
+    var isCheckVisibleMenu: String = ""
 
     override fun setLayout(): View = mBinding.root
 
@@ -83,9 +87,9 @@ class MainActivity : BaseActivity() {
         val mIntent = intent.extras
         if (mIntent != null) {
             if (mIntent.getString("recycle").equals("recycle")) {
+                isCheckHideMenu = mIntent.getString("recycle")
                 mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = true
                 mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = false
-                searchItem?.isVisible = false
                 replaceFragment(
                     LayoutFragment,
                     TrashCanFragment.newInstance(),
@@ -95,9 +99,9 @@ class MainActivity : BaseActivity() {
                 mBinding.ButtonDeleteAll.visibility = VISIBLE
                 mBinding.TextTitle.text = getString(string.deleted)
             } else if (mIntent.getString("archive").equals("archive")) {
+                isCheckHideMenu = mIntent.getString("archive")
                 mBinding.NavigationView.menu.findItem(id.item_archived).isChecked = true
                 mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = false
-                searchItem?.isVisible = false
                 replaceFragment(
                     LayoutFragment,
                     ArchiveFragment.newInstance(),
@@ -128,6 +132,7 @@ class MainActivity : BaseActivity() {
             menuItem.isCheckable = true
             when (menuItem.itemId) {
                 id.item_notes -> {
+//                    Table.type_note
                     mBinding.DrawerLayout.closeDrawer(START)
                     fm =
                         supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
@@ -140,12 +145,13 @@ class MainActivity : BaseActivity() {
                             NotesFragment::class.java.simpleName,
                             NotesFragment::class.java.simpleName
                         )
-                        searchItem?.isVisible = true
+                        mMenu?.findItem(id.menu_search)?.isVisible = true
                     }
                     true
                 }
 
                 id.item_deleted -> {
+//                    Table.type_recycle
                     mBinding.DrawerLayout.closeDrawer(START)
                     fm =
                         supportFragmentManager.findFragmentByTag(TrashCanFragment::class.java.simpleName)
@@ -158,12 +164,13 @@ class MainActivity : BaseActivity() {
                             TrashCanFragment::class.java.simpleName
                         )
                         mBinding.ButtonDeleteAll.visibility = VISIBLE
-                        searchItem?.isVisible = false
+                        mMenu?.findItem(id.menu_search)?.isVisible = false
                     }
                     true
                 }
 
                 id.item_archived -> {
+//                    Table.type_archive
                     mBinding.DrawerLayout.closeDrawer(START)
                     fm =
                         supportFragmentManager.findFragmentByTag(ArchiveFragment::class.java.simpleName)
@@ -176,7 +183,7 @@ class MainActivity : BaseActivity() {
                             ArchiveFragment::class.java.simpleName
                         )
                         mBinding.ButtonDeleteAll.visibility = GONE
-                        searchItem?.isVisible = false
+                        mMenu?.findItem(id.menu_search)?.isVisible = false
                     }
                     true
                 }
@@ -190,18 +197,25 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(mBinding.Toolbar)
     }
 
+    @SuppressLint("CommitTransaction")
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (menu != null) {
+            mMenu = menu
+        }
         menuInflater.inflate(menu_search, menu)
         searchItem = menu?.findItem(id.menu_search)
+        Log.e("visible_", isCheckVisibleMenu)
+        if (isCheckHideMenu.equals("recycle") || isCheckHideMenu.equals("archive")) {
+            menu?.findItem(id.menu_search)?.isVisible = false
+        }
+        if (isCheckVisibleMenu.equals("visible")) {
+            menu?.findItem(id.menu_search)?.isVisible = true
+        }
         searchView = searchItem?.actionView as SearchView
         searchView.queryHint = "Search..."
         searchView.setOnQueryTextFocusChangeListener { _, p1 ->
             if (!p1) {
-                replaceFragment(
-                    LayoutFragment,
-                    NotesFragment.newInstance(),
-                    NotesFragment::class.java.simpleName
-                )
+                openActivity(MainActivity::class.java)
             }
         }
         searchView.setOnQueryTextListener(object : OnQueryTextListener {
@@ -275,7 +289,7 @@ class MainActivity : BaseActivity() {
                 NotesFragment::class.java.simpleName,
                 NotesFragment::class.java.simpleName
             )
-            searchItem?.isVisible = true
+            isCheckVisibleMenu = "visible"
         }
     }
 }

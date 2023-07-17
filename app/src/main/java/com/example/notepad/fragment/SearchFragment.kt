@@ -16,6 +16,7 @@ import com.example.notepad.activity.NotesArchiveActivity
 import com.example.notepad.activity.NotesRecycleActivity
 import com.example.notepad.adapter.NotesAdapter
 import com.example.notepad.base.BaseFragment
+import com.example.notepad.custom.Table
 import com.example.notepad.databinding.FragmentSearchBinding
 
 
@@ -29,7 +30,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
 
         @SuppressLint("StaticFieldLeak")
         lateinit var mNoteAdapter: NotesAdapter
-        var table = "note"
+        var table = Table.type_note
         var mNotesDatabaseHelper: NotesDatabaseHelper? = null
     }
 
@@ -72,7 +73,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
 
         if (mBinding.btnNote.isEnabled) {
             mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm)
-            table = "note"
+            table = Table.type_note
             key = "search_detail"
             destinationClass = DetailedNotesActivity::class.java
         }
@@ -84,7 +85,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
-                table = "note"
+                table = Table.type_note
                 key = "search_detail"
                 destinationClass = DetailedNotesActivity::class.java
             }
@@ -93,7 +94,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
-                table = "recycle"
+                table = Table.type_recycle
                 key = "search_recycle"
                 destinationClass = NotesRecycleActivity::class.java
             }
@@ -102,7 +103,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
-                table = "archive"
+                table = Table.type_archive
                 key = "search_archive"
                 destinationClass = NotesArchiveActivity::class.java
             }

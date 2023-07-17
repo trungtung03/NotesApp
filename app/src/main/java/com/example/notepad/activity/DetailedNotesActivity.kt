@@ -256,7 +256,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data)
         callback.onActivityResult(requestCode, resultCode, data)
     }
-private val REQUEST_CODE_SHARE_TO_MESSENGER = -1
+
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.ButtonBackDetailNotes -> {
@@ -267,6 +267,12 @@ private val REQUEST_CODE_SHARE_TO_MESSENGER = -1
 
             }
         }
+    }
+
+    @SuppressLint("MissingSuperCall")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        setDataToBundle()
     }
 
     @Deprecated("Deprecated in Java")
