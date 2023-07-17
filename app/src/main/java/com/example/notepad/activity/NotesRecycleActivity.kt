@@ -75,7 +75,7 @@ class NotesRecycleActivity : BaseActivity() {
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
         getData(position, position_search)
 
-        mBinding.ButtonBackRecycleNotes.setOnClickListener { setDataToBundle() }
+        mBinding.ButtonBackRecycleNotes.setOnClickListener { setDataToBundle(Table.type_recycle, true) }
 
         notesModel.takeNoteID = noteID
         notesModel.title = mBinding.TextTitleRecycleNotes.text.toString().trim()
@@ -136,8 +136,9 @@ class NotesRecycleActivity : BaseActivity() {
                         )
                     }
                 } else {
-                    mDatabaseHelper?.insertNote(notesModel, "note")
-                    mDatabaseHelper?.getAllNotes(Table.type_note)
+                    setDataToBundle(Table.type_note, false)
+//                    mDatabaseHelper?.insertNote(notesModel, "note")
+//                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
                 mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
                 mDatabaseHelper?.getAllNotes(Table.type_recycle)
@@ -277,7 +278,7 @@ class NotesRecycleActivity : BaseActivity() {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun setDataToBundle() {
+    private fun setDataToBundle(table: String, insert: Boolean) {
         val notesModel = NotesModel()
 
         notesModel.takeNoteID = (noteID)
@@ -313,8 +314,13 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.milliSeconds = dateMilli?.toInt() ?: -1
             notesModel.timeSet = timeSet
         }
-        mDatabaseHelper?.updateNote(notesModel, "recycle")
-        mDatabaseHelper?.getAllNotes(Table.type_recycle)
+        if(insert) {
+            mDatabaseHelper?.updateNote(notesModel, table)
+            mDatabaseHelper?.getAllNotes(table)
+        }else {
+            mDatabaseHelper?.insertNote(notesModel, table)
+            mDatabaseHelper?.getAllNotes(table)
+        }
         backToRecycle()
     }
 
@@ -337,6 +343,6 @@ class NotesRecycleActivity : BaseActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
-        setDataToBundle()
+        setDataToBundle(Table.type_recycle, true)
     }
 }
