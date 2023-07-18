@@ -8,6 +8,15 @@ public class NotesModel {
     private String notes;
     private int milliSeconds;
     private String timeSet;
+    private String timeOld;
+
+    public String getTimeOld() {
+        return timeOld;
+    }
+
+    public void setTimeOld(String timeOld) {
+        this.timeOld = timeOld;
+    }
 
     public String getTimeSet() {
         return timeSet;
@@ -65,7 +74,7 @@ public class NotesModel {
         this.notes = notes;
     }
 
-    public NotesModel(int takeNoteID, String title, String image, String timeNote, String notes, int milliSeconds, String timeSet) {
+    public NotesModel(int takeNoteID, String title, String image, String timeNote, String notes, int milliSeconds, String timeSet, String timeOld) {
         this.takeNoteID = takeNoteID;
         this.title = title;
         this.image = image;
@@ -73,6 +82,7 @@ public class NotesModel {
         this.notes = notes;
         this.milliSeconds = milliSeconds;
         this.timeSet = timeSet;
+        this.timeOld = timeOld;
     }
 
     public NotesModel() {

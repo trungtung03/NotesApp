@@ -41,6 +41,7 @@ class NotesArchiveActivity : BaseActivity() {
     val notesModel = NotesModel()
     var dateMilli: Long = -1
     var timeSet = ""
+    var timeOld = ""
     var position = -1
     var position_search = -1
 
@@ -74,7 +75,7 @@ class NotesArchiveActivity : BaseActivity() {
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
         getData(position, position_search)
 
-        mBinding.ButtonBackArchiveNotes.setOnClickListener { setDataToBundle() }
+        mBinding.ButtonBackArchiveNotes.setOnClickListener { setDataToBundle(Table.type_archive, Table.type_archive) }
 
         notesModel.takeNoteID = noteID
         notesModel.title = mBinding.TextTitleArchiveNotes.text.toString().trim()
@@ -83,6 +84,7 @@ class NotesArchiveActivity : BaseActivity() {
         notesModel.notes = mBinding.TextArchiveNotes.text.toString().trim()
         notesModel.milliSeconds = dateMilli.toInt()
         notesModel.timeSet = timeSet
+        notesModel.timeOld = timeOld
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -114,7 +116,7 @@ class NotesArchiveActivity : BaseActivity() {
                     if (totalMilli <= 0) {
                         500.toLong().setTime(
                             Random.nextInt(1, 500),
-                            "${resources.getString(R.string.old_note_notification)} ${
+                            "${resources.getString(R.string.old_note_notification_from_archive)} ${
                                 mBinding.TextTitleArchiveNotes.text.toString().trim()
                             }"
                         )
@@ -135,8 +137,9 @@ class NotesArchiveActivity : BaseActivity() {
                         )
                     }
                 } else {
-                    mDatabaseHelper?.insertNote(notesModel, "note")
-                    mDatabaseHelper?.getAllNotes(Table.type_note)
+                    setDataToBundle(Table.type_note, Table.type_note)
+//                    mDatabaseHelper?.insertNote(notesModel, "note")
+//                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
                 mDatabaseHelper?.deleteNoteByID(noteID, "archive")
                 mDatabaseHelper?.getAllNotes(Table.type_archive)
@@ -144,10 +147,9 @@ class NotesArchiveActivity : BaseActivity() {
             }
 
             R.id.archive_note_delete -> {
-                mDatabaseHelper?.deleteNoteByID(noteID, "archive")
-                mDatabaseHelper?.insertNote(notesModel, "recycle")
+                setDataToBundle(Table.type_recycle, Table.type_recycle)
+                mDatabaseHelper?.deleteNoteByID(noteID, Table.type_archive)
                 mDatabaseHelper?.getAllNotes(Table.type_archive)
-                mDatabaseHelper?.getAllNotes(Table.type_recycle)
                 backToMain()
             }
         }
@@ -200,6 +202,7 @@ class NotesArchiveActivity : BaseActivity() {
                 noteID = archiveNoteActivity.takeNoteID
                 dateMilli = archiveNoteActivity.milliSeconds.toLong()
                 timeSet = archiveNoteActivity.timeSet
+                timeOld = archiveNoteActivity.timeOld
             }
         } else if (position < 0 && position_search >= 0) {
             mDatabaseHelper?.getNotesByID(Table.type_archive, position_search).let {
@@ -218,6 +221,7 @@ class NotesArchiveActivity : BaseActivity() {
                             noteID = mListSearch.takeNoteID
                             dateMilli = mListSearch.milliSeconds.toLong()
                             timeSet = mListSearch.timeSet
+                            timeOld = mListSearch.timeOld
                             Log.d("time_set", mListSearch.takeNoteID.toString())
                         }
                     }
@@ -277,7 +281,7 @@ class NotesArchiveActivity : BaseActivity() {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun setDataToBundle() {
+    private fun setDataToBundle(table:String, insert: String) {
         val notesModel = NotesModel()
 
         notesModel.takeNoteID = (noteID)
@@ -313,8 +317,21 @@ class NotesArchiveActivity : BaseActivity() {
             notesModel.milliSeconds = dateMilli.toInt()
             notesModel.timeSet = timeSet
         }
-        mDatabaseHelper?.updateNote(notesModel, "archive")
-        mDatabaseHelper?.getAllNotes(Table.type_archive)
+        notesModel.timeOld = timeOld
+        when (insert) {
+            Table.type_archive -> {
+                mDatabaseHelper?.updateNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+            }
+            Table.type_note -> {
+                mDatabaseHelper?.insertNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+            }
+            else -> {
+                mDatabaseHelper?.insertNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+            }
+        }
         backToArchive()
     }
 
@@ -337,6 +354,6 @@ class NotesArchiveActivity : BaseActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
-        setDataToBundle()
+        setDataToBundle(Table.type_archive, Table.type_archive)
     }
 }

@@ -21,8 +21,8 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
     private MutableLiveData<List<NotesModel>> liveData = new MutableLiveData<>();
     private MutableLiveData<List<NotesModel>> liveDataRecycle = new MutableLiveData<>();
     private MutableLiveData<List<NotesModel>> liveDataArchive = new MutableLiveData<>();
-    private static final String DATABASE_NAME = "notepad3.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "notepad.db";
+    private static final int DATABASE_VERSION = 2;
     private static final String TABLE_NOTE = "note";
     private static final String RECYCLE = "recycle";
     private static final String ARCHIVE = "archive";
@@ -42,7 +42,8 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
                 "time VARCHAR (50) NOT NULL," +
                 "notes VARCHAR (5000) NOT NULL," +
                 "milliSeconds INTERGER (1000)," +
-                "timeSet VARCHAR (50) NOT NULL" +
+                "timeSet VARCHAR (50) NOT NULL," +
+                "timeOld VARCHAR (50) NOT NULL" +
                 ")";
         String queryCreateTableTrashCan = "CREATE TABLE " + RECYCLE + " ( " +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -51,7 +52,8 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
                 "time VARCHAR (50) NOT NULL," +
                 "notes VARCHAR (5000) NOT NULL," +
                 "milliSeconds INTERGER (1000)," +
-                "timeSet VARCHAR (50) NOT NULL" +
+                "timeSet VARCHAR (50) NOT NULL," +
+                "timeOld VARCHAR (50) NOT NULL" +
                 ")";
         String queryCreateTableArchive = "CREATE TABLE " + ARCHIVE + " ( " +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -60,7 +62,8 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
                 "time VARCHAR (50) NOT NULL," +
                 "notes VARCHAR (5000) NOT NULL," +
                 "milliSeconds INTERGER (1000)," +
-                "timeSet VARCHAR (50) NOT NULL" +
+                "timeSet VARCHAR (50) NOT NULL," +
+                "timeOld VARCHAR (50) NOT NULL" +
                 ")";
         sqLiteDatabase.execSQL(queryCreateTableNote);
         sqLiteDatabase.execSQL(queryCreateTableTrashCan);
@@ -80,7 +83,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         List<NotesModel> mListData = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet FROM '" + table + "' ORDER BY id DESC", null);
+        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet, timeOld FROM '" + table + "' ORDER BY id DESC", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             int takeNoteID = cursor.getInt(0);
@@ -90,8 +93,9 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             String noteContent = cursor.getString(4);
             int milliSeconds = cursor.getInt(5);
             String timeSet = cursor.getString(6);
+            String timeOld = cursor.getString(7);
 
-            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet));
+            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet, timeOld));
             cursor.moveToNext();
         }
         cursor.close();
@@ -109,7 +113,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         List<NotesModel> mListData = new ArrayList<>();
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet FROM '" + table + "' WHERE '" + id + "' ORDER BY id DESC", null);
+        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet, timeOld FROM '" + table + "' WHERE '" + id + "' ORDER BY id DESC", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             int takeNoteID = cursor.getInt(0);
@@ -119,8 +123,9 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             String noteContent = cursor.getString(4);
             int milliSeconds = cursor.getInt(5);
             String timeSet = cursor.getString(6);
+            String timeOld = cursor.getString(7);
 
-            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet));
+            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet, timeOld));
             cursor.moveToNext();
         }
         cursor.close();
@@ -133,7 +138,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         List<NotesModel> mListData = new ArrayList<>();
 
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet FROM '" + table + "' WHERE title LIKE ?",
+        Cursor cursor = db.rawQuery("SELECT id, title, image, time, notes, milliSeconds, timeSet, timeOld FROM '" + table + "' WHERE title LIKE ?",
                 new String[]{"%" + keyword + "%"});
 
         cursor.moveToFirst();
@@ -145,8 +150,9 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             String noteContent = cursor.getString(cursor.getColumnIndex("notes"));
             int milliSeconds = cursor.getInt(cursor.getColumnIndex("milliSeconds"));
             String timeSet = cursor.getString(cursor.getColumnIndex("timeSet"));
+            String timeOld = cursor.getString(cursor.getColumnIndex("timeOld"));
 
-            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet));
+            mListData.add(new NotesModel(takeNoteID, titleNote, imageNote, timeNote, noteContent, milliSeconds, timeSet, timeOld));
             cursor.moveToNext();
         }
 
@@ -169,14 +175,16 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
 
     public void insertNote(NotesModel notesModel, String table) {
         SQLiteDatabase mDatabase = getWritableDatabase();
-        mDatabase.execSQL("INSERT INTO '" + table + "' (title, image, time, notes, milliseconds, timeSet) VALUES (?,?,?,?,?,?)",
-                new String[]{notesModel.getTitle(), notesModel.getImage(), notesModel.getTimeNote(), notesModel.getNotes(), String.valueOf(notesModel.getMilliSeconds()), notesModel.getTimeSet()});
+        mDatabase.execSQL("INSERT INTO '" + table + "' (title, image, time, notes, milliseconds, timeSet, timeOld) VALUES (?,?,?,?,?,?,?)",
+                new String[]{notesModel.getTitle(), notesModel.getImage(), notesModel.getTimeNote(),
+                        notesModel.getNotes(), String.valueOf(notesModel.getMilliSeconds()), notesModel.getTimeSet(), notesModel.getTimeOld()});
     }
 
     public void updateNote(NotesModel notesModel, String table) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE '" + table + "' SET title = ?, image = ?, time = ?, notes = ? where id = ?",
-                new String[]{notesModel.getTitle(), notesModel.getImage(), notesModel.getTimeNote(), notesModel.getNotes(), notesModel.getTakeNoteID() + ""});
+        db.execSQL("UPDATE '" + table + "' SET title = ?, image = ?, time = ?, notes = ?, milliseconds = ?, timeSet = ? where id = ?",
+                new String[]{notesModel.getTitle(), notesModel.getImage(), notesModel.getTimeNote(),
+                        notesModel.getNotes(), notesModel.getMilliSeconds() + "", notesModel.getTimeSet(), notesModel.getTakeNoteID() + ""});
     }
 
     public void deleteTimeSet(NotesModel notesModel, String table) {

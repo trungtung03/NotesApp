@@ -9,4 +9,7 @@
     <item
         android:id="@+id/detail_note_archive"
         android:title="@string/archive" />
+    <item
+        android:id="@+id/detail_note_set_time"
+        android:title="@string/set_time" />
 </menu>

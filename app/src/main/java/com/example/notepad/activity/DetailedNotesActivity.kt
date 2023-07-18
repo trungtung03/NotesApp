@@ -15,7 +15,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
-import android.widget.Toast
+import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -25,19 +26,20 @@ import com.example.notepad.MyAlarmManager
 import com.example.notepad.NotesDatabaseHelper
 import com.example.notepad.R
 import com.example.notepad.base.BaseActivity
+import com.example.notepad.custom.DatePickerDialog
 import com.example.notepad.custom.Table
+import com.example.notepad.custom.TimePickerDialog
 import com.example.notepad.databinding.ActivityDetailedNotesBinding
 import com.example.notepad.model.NotesModel
 import com.facebook.CallbackManager
 import com.facebook.FacebookSdk
-import com.facebook.messenger.ShareToMessengerParams
-import com.facebook.share.model.ShareLinkContent
-import com.facebook.share.widget.ShareDialog
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 
 
-class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
+class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
+    android.app.DatePickerDialog.OnDateSetListener, android.app.TimePickerDialog.OnTimeSetListener {
 
     private lateinit var mBinding: ActivityDetailedNotesBinding
     private var mUri: Uri? = null
@@ -53,6 +55,10 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     var position = -1
     var position_search = -1
     var timeSet = ""
+    var timeOld = ""
+    var isCheckSetTime = false
+    private lateinit var dateSet: String
+    private lateinit var timeInstance: String
     lateinit var callback: CallbackManager
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
@@ -72,6 +78,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
 
     override fun setLayout(): View = mBinding.root
 
+    @SuppressLint("SimpleDateFormat")
     override fun initView() {
         mBinding = ActivityDetailedNotesBinding.inflate(layoutInflater)
         setSupportActionBar(mBinding.ToolbarDetailNotes)
@@ -98,10 +105,16 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         notesModel.notes = mBinding.TextDetailNotes.text.toString().trim()
         notesModel.milliSeconds = dateMilli?.toInt() ?: -1
         notesModel.timeSet = timeSet
+        notesModel.timeOld = timeOld
+
+        timeInstance = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_detail_note, menu)
+        if (timeSet != "") {
+            menu?.findItem(R.id.detail_note_set_time)?.title = "Cài lại giờ"
+        }
         return true
     }
 
@@ -124,10 +137,9 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
                     val detailsNoteId = it.getOrNull(position)
                     cancelPending(detailsNoteId?.milliSeconds?.toInt() ?: -1)
                 }
-                mDatabaseHelper?.insertNote(notesModel, "recycle")
-                mDatabaseHelper?.deleteNoteByID(noteID, "note")
+                setDataToBundle(Table.type_recycle, Table.type_recycle)
+                mDatabaseHelper?.deleteNoteByID(noteID, Table.type_note)
                 mDatabaseHelper?.getAllNotes(Table.type_note)
-                mDatabaseHelper?.getAllNotes(Table.type_recycle)
                 openActivity(MainActivity::class.java)
             }
 
@@ -136,11 +148,19 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
                     val detailsNoteId = it.getOrNull(position)
                     cancelPending(detailsNoteId?.milliSeconds?.toInt() ?: -1)
                 }
-                mDatabaseHelper?.insertNote(notesModel, "archive")
-                mDatabaseHelper?.deleteNoteByID(noteID, "note")
+                setDataToBundle(Table.type_archive, Table.type_archive)
+                mDatabaseHelper?.deleteNoteByID(noteID, Table.type_note)
                 mDatabaseHelper?.getAllNotes(Table.type_note)
-                mDatabaseHelper?.getAllNotes(Table.type_archive)
                 openActivity(MainActivity::class.java)
+            }
+
+            R.id.detail_note_set_time -> {
+                val datePicker = DatePickerDialog()
+                datePicker.setListener(this@DetailedNotesActivity)
+                datePicker.show(
+                    supportFragmentManager,
+                    DatePickerDialog::class.java.simpleName.toString()
+                )
             }
         }
         return super.onOptionsItemSelected(item)
@@ -163,6 +183,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
                 noteID = detailsNoteActivity.takeNoteID
                 dateMilli = detailsNoteActivity.milliSeconds.toLong()
                 timeSet = detailsNoteActivity.timeSet
+                timeOld = detailsNoteActivity.timeOld
             }
         } else if (position < 0 && position_search >= 0) {
             mDatabaseHelper?.getNotesByID(Table.type_note, position_search).let {
@@ -181,7 +202,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
                             noteID = mListSearch.takeNoteID
                             dateMilli = mListSearch.milliSeconds.toLong()
                             timeSet = mListSearch.timeSet
-                            Log.d("time_set", mListSearch.takeNoteID.toString())
+                            timeOld = mListSearch.timeOld
                         }
                     }
                 }
@@ -190,7 +211,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun setDataToBundle() {
+    private fun setDataToBundle(table: String, insert: String) {
         val notesModel = NotesModel()
 
         notesModel.takeNoteID = (noteID)
@@ -219,6 +240,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         } else if (pathImage.isEmpty() && mUri == null) {
             notesModel.image = ""
         }
+        Log.d("milli_", dateMilli.toString())
         if (dateMilli!! < 0) {
             notesModel.milliSeconds = -1
             notesModel.timeSet = ""
@@ -226,13 +248,70 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
             notesModel.milliSeconds = dateMilli?.toInt() ?: -1
             notesModel.timeSet = timeSet
         }
-        mDatabaseHelper?.updateNote(notesModel, "note")
-        mDatabaseHelper?.getAllNotes(Table.type_note)
+        notesModel.timeOld = timeOld
+        when (insert) {
+            Table.type_note -> {
+                Log.d("milli_2", dateMilli.toString())
+                mDatabaseHelper?.updateNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+                setTime_()
+            }
+
+            Table.type_recycle -> {
+                mDatabaseHelper?.insertNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+            }
+
+            else -> {
+                mDatabaseHelper?.insertNote(notesModel, table)
+                mDatabaseHelper?.getAllNotes(table)
+            }
+        }
         openActivity(
             MainActivity::
             class.java
         )
         finish()
+    }
+
+    private fun setTime_() {
+        if (isCheckSetTime) {
+            if (timeSet == "") {
+                setTime(
+                    dateMilli!!.toLong(),
+                    dateMilli!!.toInt(),
+                    "${resources.getString(R.string.note_notification)} ${
+                        mBinding.TextTitleDetailNotes.text.toString()
+                    }",
+                    noteID
+                )
+                isCheckSetTime = false
+            } else {
+                mList.let {
+                    val detailsNoteId = it.getOrNull(position)
+                    cancelPending(detailsNoteId?.milliSeconds?.toInt() ?: -1)
+                }
+                setTime(
+                    dateMilli!!.toLong(),
+                    dateMilli!!.toInt(),
+                    "${resources.getString(R.string.note_notification)} ${
+                        mBinding.TextTitleDetailNotes.text.toString()
+                    }",
+                    noteID
+                )
+                isCheckSetTime = false
+            }
+        } else {
+            cancelPending((dateMilli ?: -1).toInt())
+            setTime(
+                dateMilli!!.toLong(),
+                dateMilli!!.toInt(),
+                "${resources.getString(R.string.note_notification)} ${
+                    mBinding.TextTitleDetailNotes.text.toString()
+                }",
+                noteID
+            )
+        }
     }
 
     @SuppressLint("Range")
@@ -252,6 +331,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         return path
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         callback.onActivityResult(requestCode, resultCode, data)
@@ -260,11 +340,31 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.ButtonBackDetailNotes -> {
-                setDataToBundle()
+                setDataToBundle(Table.type_note, Table.type_note)
             }
 
             R.id.ButtonShareDetailNotes -> {
+                val timeCreate = mBinding.TextViewDateTimeDetailNotes.text.toString()
+                val messageTitle = mBinding.TextTitleDetailNotes.text.toString()
+                val message = mBinding.TextDetailNotes.text.toString()
+                Log.d("uri_", pathImage + " | " + Uri.parse(pathImage) + " | " + message)
+                try {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.type = "image/*";
+                    intent.putExtra(
+                        Intent.EXTRA_TEXT,
+                        "Thời gian khởi tạo: $timeCreate\n" + "Tiêu đề: $messageTitle\n" +
+                                "Nội dung: $message"
+                    )
 
+                    intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(mUri.toString()))
+                    intent.setPackage("com.facebook.orca")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -272,7 +372,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        setDataToBundle()
+        setDataToBundle(Table.type_note, Table.type_note)
     }
 
     @Deprecated("Deprecated in Java")
@@ -319,5 +419,49 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener {
         )
         alarmManager.cancel(pendingCancel)
         pendingCancel.cancel()
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    override fun onDateSet(p0: DatePicker?, p1: Int, p2: Int, p3: Int) {
+        val timePicker = TimePickerDialog()
+        timePicker.setListener(this@DetailedNotesActivity)
+        timePicker.show(supportFragmentManager, "TakePicker")
+        val date = SimpleDateFormat("dd/MM/yyyy HH:mm").parse("$p1/${p2 + 1}/$p3 $timeInstance")
+        dateSet = "$p1/${p2 + 1}/$p3"
+        timeSet = "$p1/${p2 + 1}/$p3 $timeInstance"
+        dateMilli = date!!.time - Calendar.getInstance().timeInMillis
+        isCheckSetTime = true
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    override fun onTimeSet(p0: TimePicker?, p1: Int, p2: Int) {
+        val date = SimpleDateFormat("dd/MM/yyyy HH:mm").parse("$dateSet $p1:$p2")
+        dateMilli = date!!.time - Calendar.getInstance().timeInMillis
+        timeSet = "$dateSet $p1:$p2"
+        if (dateMilli!! < 0) {
+            createCustomToast(
+                R.drawable.warning,
+                resources.getString(R.string.set_time_notification)
+            )
+        }
+        isCheckSetTime = true
+    }
+
+    private fun setTime(timeData: Long, requestCode: Int, message: String, id: Int) {
+        if (timeData > 0) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val mIntent = Intent(this@DetailedNotesActivity, MyAlarmManager::class.java)
+            mIntent.putExtra("message", message)
+            mIntent.putExtra("id", id)
+            Log.d("date_milli", "$requestCode $id $message")
+            val pendingIntent = PendingIntent.getBroadcast(
+                this@DetailedNotesActivity,
+                requestCode,
+                mIntent,
+                PendingIntent.FLAG_MUTABLE
+            )
+            val timeMilli = System.currentTimeMillis() + timeData
+            alarmManager.set(AlarmManager.RTC_WAKEUP, timeMilli, pendingIntent)
+        }
     }
 }

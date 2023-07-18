@@ -44,6 +44,7 @@ class NotesRecycleActivity : BaseActivity() {
     lateinit var mList: List<NotesModel>
     val notesModel = NotesModel()
     var timeSet = ""
+    var timeOld = ""
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -84,6 +85,7 @@ class NotesRecycleActivity : BaseActivity() {
         notesModel.notes = mBinding.TextRecycleNotes.text.toString().trim()
         notesModel.milliSeconds = dateMilli?.toInt() ?: -1
         notesModel.timeSet = timeSet
+        notesModel.timeOld = timeOld
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -115,16 +117,16 @@ class NotesRecycleActivity : BaseActivity() {
                     if (totalMilli <= 0) {
                         500.toLong().setTime(
                             Random.nextInt(1, 500),
-                            "${resources.getString(R.string.old_note_notification)} ${
+                            "${resources.getString(R.string.old_note_notification_from_recycle)} ${
                                 mBinding.TextTitleRecycleNotes.text.toString().trim()
                             }"
                         )
                         notesModel.milliSeconds = -1
                         notesModel.timeSet = ""
-                        mDatabaseHelper?.insertNote(notesModel, "note")
+                        mDatabaseHelper?.insertNote(notesModel, Table.type_note)
                         mDatabaseHelper?.getAllNotes(Table.type_note)
                     } else {
-                        mDatabaseHelper?.insertNote(notesModel, "note")
+                        mDatabaseHelper?.insertNote(notesModel, Table.type_note)
                         mDatabaseHelper?.getAllNotes(Table.type_note)
                         dateMilli?.setTimeInId(
                             dateMilli!!.toInt(),
@@ -137,10 +139,8 @@ class NotesRecycleActivity : BaseActivity() {
                     }
                 } else {
                     setDataToBundle(Table.type_note, false)
-//                    mDatabaseHelper?.insertNote(notesModel, "note")
-//                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
-                mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
+                mDatabaseHelper?.deleteNoteByID(noteID, Table.type_recycle)
                 mDatabaseHelper?.getAllNotes(Table.type_recycle)
                 backToMain()
             }
@@ -172,6 +172,7 @@ class NotesRecycleActivity : BaseActivity() {
                 noteID = recycleNoteActivity.takeNoteID
                 dateMilli = recycleNoteActivity.milliSeconds.toLong()
                 timeSet = recycleNoteActivity.timeSet
+                timeOld = recycleNoteActivity.timeOld
                 Log.d("time_set", position.toString())
             }
         } else if (position < 0 && position_search >= 0) {
@@ -191,6 +192,7 @@ class NotesRecycleActivity : BaseActivity() {
                             noteID = mListSearch.takeNoteID
                             dateMilli = mListSearch.milliSeconds.toLong()
                             timeSet = mListSearch.timeSet
+                            timeOld = mListSearch.timeOld
                             Log.d("time_set", mListSearch.takeNoteID.toString())
                         }
                     }
@@ -314,6 +316,7 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.milliSeconds = dateMilli?.toInt() ?: -1
             notesModel.timeSet = timeSet
         }
+        notesModel.timeOld = timeOld
         if(insert) {
             mDatabaseHelper?.updateNote(notesModel, table)
             mDatabaseHelper?.getAllNotes(table)

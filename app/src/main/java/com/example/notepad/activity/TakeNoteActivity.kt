@@ -50,6 +50,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     private var dateMilli: Long = -1
     private var timeSet: String = ""
     private var pathImage: String = ""
+    private var oldTime: String = ""
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -94,7 +95,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
         mBinding.ButtonBack.setOnClickListener {
-            setDataToBundle(Table.type_note)
+            setDataToBundle(true)
             setTime(
                 dateMilli,
                 dateMilli.toInt(),
@@ -111,6 +112,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
 
         dateInstance = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
         timeInstance = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
+        oldTime = SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().time)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -118,7 +120,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         return true
     }
 
-    private fun setDataToBundle(table: String) {
+    private fun setDataToBundle(insert: Boolean) {
         val notesModel = NotesModel()
         if (mBinding.EditTextTakeNotes.text!!.trim()
                 .isNotEmpty() && mBinding.EditTextTitle.text.trim().isNotEmpty()
@@ -145,6 +147,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.image = ""
             pathImage = ""
         }
+        notesModel.timeOld = oldTime
 
         if (dateMilli < 0) {
             notesModel.milliSeconds = -1
@@ -153,8 +156,13 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.milliSeconds = dateMilli.toInt()
             notesModel.timeSet = timeSet
         }
-        mDatabaseHelper?.insertNote(notesModel, table)
-        mDatabaseHelper?.getAllNotes(table)
+        if(insert) {
+            mDatabaseHelper?.insertNote(notesModel, Table.type_note)
+            mDatabaseHelper?.getAllNotes(Table.type_note)
+        }else {
+            mDatabaseHelper?.insertNote(notesModel, Table.type_archive)
+            mDatabaseHelper?.getAllNotes(Table.type_archive)
+        }
         openActivity(
             MainActivity::
             class.java
@@ -178,7 +186,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             }
 
             R.id.take_note_archive -> {
-                setDataToBundle(Table.type_archive)
+                setDataToBundle(false)
             }
 
             R.id.take_note_set_time -> {
@@ -202,7 +210,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     )
     override fun onBackPressed() {
         super.onBackPressed()
-        setDataToBundle(Table.type_note)
+        setDataToBundle(true)
         setTime(
             dateMilli,
             dateMilli.toInt(),
