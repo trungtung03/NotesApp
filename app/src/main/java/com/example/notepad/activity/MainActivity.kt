@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Handler
 import android.provider.Settings
@@ -13,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.Button
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.*
 import androidx.core.view.GravityCompat.START
@@ -31,9 +33,9 @@ import com.example.notepad.fragment.NotesFragment
 import com.example.notepad.fragment.SearchFragment
 import com.example.notepad.fragment.TrashCanFragment
 import com.example.notepad.model.NotesModel
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : BaseActivity() {
-
     companion object {
         var mListData = arrayListOf<NotesModel>()
     }
@@ -50,6 +52,7 @@ class MainActivity : BaseActivity() {
 
     override fun setLayout(): View = mBinding.root
 
+    @SuppressLint("ShowToast", "InflateParams")
     override fun initView() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setupToolbar()
@@ -111,12 +114,26 @@ class MainActivity : BaseActivity() {
                 mBinding.TextTitle.text = getString(string.archived)
             }
         }
-        mBinding.ButtonDeleteAll.setOnClickListener {
+        mBinding.ButtonDeleteAll.setOnClickListener { v ->
             if (TrashCanFragment.mListData.size > 0) {
-                mDatabaseHelper!!.deleteAllRecycle()
-                mDatabaseHelper?.getAllNotes(Table.type_recycle)
-                mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = true
-                mBinding.TextTitle.text = getString(string.deleted)
+                val snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT)
+                val customSnackView: View =
+                    layoutInflater.inflate(R.layout.snackbar_deleteall, null)
+                snackbar.view.setBackgroundColor(Color.TRANSPARENT)
+                val snackbarLayout = snackbar.view as Snackbar.SnackbarLayout
+                snackbarLayout.addView(customSnackView)
+                snackbarLayout.setPadding(0, 0, 0, 0)
+                snackbar.show()
+                val buttonAccept: Button = customSnackView.findViewById(id.btnOkSnackbar)
+                buttonAccept.setOnClickListener {
+                    mDatabaseHelper!!.deleteAllRecycle()
+                    mDatabaseHelper?.getAllNotes(Table.type_recycle)
+                    mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = true
+                    mBinding.TextTitle.text = getString(string.deleted)
+                    snackbar.dismiss()
+                }
+            } else {
+                createCustomToast(R.drawable.warning, "Không có thông báo nào trong thùng rác")
             }
         }
     }
