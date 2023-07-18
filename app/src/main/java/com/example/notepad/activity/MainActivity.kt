@@ -133,7 +133,7 @@ class MainActivity : BaseActivity() {
                     snackbar.dismiss()
                 }
             } else {
-                createCustomToast(R.drawable.warning, "Không có thông báo nào trong thùng rác")
+                createCustomToast(R.drawable.warning, resources.getString(R.string.recycle_null))
             }
         }
     }
