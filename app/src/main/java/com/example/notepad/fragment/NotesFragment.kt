@@ -5,10 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
@@ -21,7 +18,6 @@ import com.example.notepad.base.BaseFragment
 import com.example.notepad.custom.Table
 import com.example.notepad.databinding.FragmentNotesBinding
 import com.example.notepad.model.NotesModel
-import kotlin.random.Random
 
 class NotesFragment : BaseFragment<FragmentNotesBinding>() {
 
@@ -47,6 +43,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>() {
     private fun actionView() {
         mBinding.AddNotes.setOnClickListener {
             openActivity(TakeNoteActivity::class.java)
+            activity?.finish()
         }
 
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper

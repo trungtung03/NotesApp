@@ -261,7 +261,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
                 mDatabaseHelper?.getAllNotes(table)
             }
         }
-        finish()
+        openActivity(MainActivity::class.java)
     }
 
     private fun setTime_() {

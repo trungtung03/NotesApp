@@ -163,7 +163,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             mDatabaseHelper?.insertNote(notesModel, Table.type_archive)
             mDatabaseHelper?.getAllNotes(Table.type_archive)
         }
-        finish()
+        openActivity(MainActivity::class.java)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
