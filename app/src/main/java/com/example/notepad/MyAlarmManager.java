@@ -8,9 +8,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import com.example.notepad.custom.Table;
 import com.example.notepad.model.NotesModel;
-
 import java.util.Objects;
-
 import kotlin.random.Random;
 
 public class MyAlarmManager extends BroadcastReceiver {
