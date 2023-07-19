@@ -37,6 +37,7 @@ import com.google.android.material.snackbar.Snackbar
 class MainActivity : BaseActivity() {
     companion object {
         var mListData = arrayListOf<NotesModel>()
+        lateinit var searchView: SearchView
     }
 
     private lateinit var mBinding: ActivityMainBinding
@@ -44,7 +45,6 @@ class MainActivity : BaseActivity() {
     private var mDatabaseHelper: NotesDatabaseHelper? = null
     private var fm: Fragment? = null
     private var searchItem: MenuItem? = null
-    lateinit var searchView: SearchView
     var isCheckHideMenu: String? = null
     var mMenu: Menu? = null
     var isCheckVisibleMenu: String = ""
@@ -60,6 +60,7 @@ class MainActivity : BaseActivity() {
         addFragment(
             LayoutFragment,
             NotesFragment.newInstance(),
+            NotesFragment::class.java.simpleName,
             NotesFragment::class.java.simpleName
         )
 
@@ -269,8 +270,8 @@ class MainActivity : BaseActivity() {
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        val fragment = supportFragmentManager.findFragmentById(LayoutFragment)
-        if (fragment is NotesFragment) {
+        fm = supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
+        if (fm != null && fm!!.isVisible) {
             backPressedCount++
             if (backPressedCount == 2) {
                 finish()

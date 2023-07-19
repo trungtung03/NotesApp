@@ -57,6 +57,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>() {
             mIntent.putExtra("position_detail", mNoteAdapter.getListItem().indexOf(it))
             startActivity(mIntent)
             activity?.overridePendingTransition(R.anim.fade_in, R.anim.slide_out)
+            activity?.finish()
         }, onClickClose = {
             list.let { it2 ->
                 val notesModel = NotesModel()

@@ -49,6 +49,7 @@ class TrashCanFragment: BaseFragment<FragmentRecycleBinding>() {
                 mIntent.putExtra("position_recycle", mNoteAdapter.getListItem().indexOf(it))
                 startActivity(mIntent)
                 activity?.overridePendingTransition(R.anim.slide_in, R.anim.fade_out)
+                activity?.finish()
             }, onClickClose = {
                 mList.let { it2 ->
                     val notesModel = NotesModel()

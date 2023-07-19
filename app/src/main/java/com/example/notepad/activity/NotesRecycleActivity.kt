@@ -346,7 +346,7 @@ class NotesRecycleActivity : BaseActivity() {
         if (position >= 0 && position_search < 0) {
             backToRecycle()
         } else if (position < 0 && position_search >= 0) {
-            openActivity(MainActivity::class.java)
+            finish()
         }
     }
 

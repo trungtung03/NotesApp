@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notepad.MainApp
 import com.example.notepad.NotesDatabaseHelper
@@ -64,6 +65,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                     mIntent.putExtra(key, index?.takeNoteID)
                     startActivity(mIntent)
                     activity?.overridePendingTransition(R.anim.slide_in, R.anim.fade_out)
+                    activity?.finish()
                 }
             }, onClickClose = {})
 
@@ -82,6 +84,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.btn_note -> {
+                setQuery(mBinding.btnRecycle, mBinding.btnArchive)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
@@ -91,6 +94,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
             }
 
             R.id.btn_recycle -> {
+                setQuery(mBinding.btnNote, mBinding.btnArchive)
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm_default)
@@ -100,6 +104,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
             }
 
             R.id.btn_archive -> {
+                setQuery(mBinding.btnNote, mBinding.btnRecycle)
                 mBinding.btnArchive.setBackgroundResource(R.drawable.bg_btn_fgm)
                 mBinding.btnRecycle.setBackgroundResource(R.drawable.bg_btn_fgm_default)
                 mBinding.btnNote.setBackgroundResource(R.drawable.bg_btn_fgm_default)
@@ -107,6 +112,12 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), View.OnClickListen
                 key = "search_archive"
                 destinationClass = NotesArchiveActivity::class.java
             }
+        }
+    }
+
+    private fun setQuery(button: Button, button_: Button) {
+        if(button.isEnabled || button_.isEnabled ) {
+            MainActivity.searchView.setQuery("", false)
         }
     }
 }

@@ -338,7 +338,7 @@ class NotesArchiveActivity : BaseActivity() {
     private fun backToArchive() {
         val mIntent = Intent(this@NotesArchiveActivity, MainActivity::class.java)
         mIntent.putExtra("archive", "archive")
-        startActivity(mIntent)
+        startActivityForResult(mIntent, 1)
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out)
         finish()
     }
