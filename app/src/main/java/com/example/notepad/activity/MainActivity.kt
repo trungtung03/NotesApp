@@ -65,16 +65,6 @@ class MainActivity : BaseActivity() {
             NotesFragment::class.java.simpleName
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val notificationManager = getSystemService(
-                NotificationManager::class.java
-            )
-            if (!notificationManager.isNotificationPolicyAccessGranted) {
-                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-                startActivity(intent)
-            }
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "notepad", "NotePad", NotificationManager.IMPORTANCE_DEFAULT
