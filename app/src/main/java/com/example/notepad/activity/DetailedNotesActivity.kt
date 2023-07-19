@@ -261,10 +261,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
                 mDatabaseHelper?.getAllNotes(table)
             }
         }
-        openActivity(
-            MainActivity::
-            class.java
-        )
         finish()
     }
 

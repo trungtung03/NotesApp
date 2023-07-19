@@ -3,11 +3,9 @@ package com.example.notepad.activity
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Handler
-import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +13,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.*
 import androidx.core.view.GravityCompat.START
@@ -61,7 +60,6 @@ class MainActivity : BaseActivity() {
         addFragment(
             LayoutFragment,
             NotesFragment.newInstance(),
-            NotesFragment::class.java.simpleName,
             NotesFragment::class.java.simpleName
         )
 
@@ -145,7 +143,7 @@ class MainActivity : BaseActivity() {
                         supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
                     if (fm != null && !fm!!.isVisible) {
                         mBinding.ButtonDeleteAll.visibility = GONE
-                        mBinding.TextTitle.text = getString(R.string.app_name)
+                        mBinding.TextTitle.text = getString(string.app_name)
                         replaceFragment(
                             LayoutFragment,
                             NotesFragment.newInstance(),
@@ -271,13 +269,11 @@ class MainActivity : BaseActivity() {
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        supportFragmentManager.popBackStack(NotesFragment::class.java.simpleName, 0)
-        fm = supportFragmentManager.findFragmentByTag(NotesFragment::class.java.simpleName)
-        if (fm != null && fm!!.isVisible) {
+        val fragment = supportFragmentManager.findFragmentById(LayoutFragment)
+        if (fragment is NotesFragment) {
             backPressedCount++
-            if (backPressedCount > 1) {
+            if (backPressedCount == 2) {
                 finish()
-                backPressedCount = 0
             } else {
                 createCustomToast(drawable.warning, resources.getString(string.message_toast))
                 Handler().postDelayed({
@@ -289,14 +285,14 @@ class MainActivity : BaseActivity() {
             mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = true
             mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = false
             mBinding.NavigationView.menu.findItem(id.item_archived).isChecked = false
-            mBinding.TextTitle.text = getString(R.string.app_name)
+            mBinding.TextTitle.text = getString(string.app_name)
             replaceFragment(
                 LayoutFragment,
                 NotesFragment.newInstance(),
-                NotesFragment::class.java.simpleName,
                 NotesFragment::class.java.simpleName
             )
             isCheckVisibleMenu = "visible"
+            super.onBackPressedDispatcher
         }
     }
 }

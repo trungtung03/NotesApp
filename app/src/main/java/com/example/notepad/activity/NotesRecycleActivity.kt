@@ -76,7 +76,12 @@ class NotesRecycleActivity : BaseActivity() {
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
         getData(position, position_search)
 
-        mBinding.ButtonBackRecycleNotes.setOnClickListener { setDataToBundle(Table.type_recycle, true) }
+        mBinding.ButtonBackRecycleNotes.setOnClickListener {
+            setDataToBundle(
+                Table.type_recycle,
+                true
+            )
+        }
 
         notesModel.takeNoteID = noteID
         notesModel.title = mBinding.TextTitleRecycleNotes.text.toString().trim()
@@ -245,7 +250,8 @@ class NotesRecycleActivity : BaseActivity() {
             null
         )
         cursor?.moveToFirst()
-        val path: String? = cursor?.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+        val path: String? =
+            cursor?.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
         cursor?.close()
         return path
     }
@@ -302,7 +308,8 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.title = mBinding.TextTitleRecycleNotes.text.toString().trim()
         }
         notesModel.timeNote =
-            SimpleDateFormat("EEE d MMM yyyy").format(Calendar.getInstance().time).toString().trim()
+            SimpleDateFormat("EEE d MMM yyyy").format(Calendar.getInstance().time).toString()
+                .trim()
         notesModel.image = pathImage
         if (mUri != null) {
             notesModel.image = getPath(mUri)
@@ -317,10 +324,10 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.timeSet = timeSet
         }
         notesModel.timeOld = timeOld
-        if(insert) {
+        if (insert) {
             mDatabaseHelper?.updateNote(notesModel, table)
             mDatabaseHelper?.getAllNotes(table)
-        }else {
+        } else {
             mDatabaseHelper?.insertNote(notesModel, table)
             mDatabaseHelper?.getAllNotes(table)
         }
@@ -330,7 +337,7 @@ class NotesRecycleActivity : BaseActivity() {
     private fun backToRecycle() {
         val mIntent = Intent(this@NotesRecycleActivity, MainActivity::class.java)
         mIntent.putExtra("recycle", "recycle")
-        startActivity(mIntent)
+        startActivityForResult(mIntent, 0)
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out)
         finish()
     }
