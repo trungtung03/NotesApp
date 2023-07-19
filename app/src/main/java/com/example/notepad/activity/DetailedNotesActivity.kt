@@ -96,7 +96,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
         getData(position, position_search)
 
         mBinding.ButtonBackDetailNotes.setOnClickListener(this)
-        mBinding.ButtonShareDetailNotes.setOnClickListener(this)
 
         notesModel.takeNoteID = noteID
         notesModel.title = mBinding.TextTitleDetailNotes.text.toString().trim()
@@ -341,30 +340,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
         when (p0?.id) {
             R.id.ButtonBackDetailNotes -> {
                 setDataToBundle(Table.type_note, Table.type_note)
-            }
-
-            R.id.ButtonShareDetailNotes -> {
-                val timeCreate = mBinding.TextViewDateTimeDetailNotes.text.toString()
-                val messageTitle = mBinding.TextTitleDetailNotes.text.toString()
-                val message = mBinding.TextDetailNotes.text.toString()
-                Log.d("uri_", pathImage + " | " + Uri.parse(pathImage) + " | " + message)
-                try {
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.type = "image/*";
-                    intent.putExtra(
-                        Intent.EXTRA_TEXT,
-                        "Thời gian khởi tạo: $timeCreate\n" + "Tiêu đề: $messageTitle\n" +
-                                "Nội dung: $message"
-                    )
-
-                    intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(mUri.toString()))
-                    intent.setPackage("com.facebook.orca")
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-
-                    e.printStackTrace()
-                }
             }
         }
     }
