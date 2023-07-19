@@ -59,7 +59,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
     var isCheckSetTime = false
     private lateinit var dateSet: String
     private lateinit var timeInstance: String
-    lateinit var callback: CallbackManager
+//    lateinit var callback: CallbackManager
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -82,11 +82,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
     override fun initView() {
         mBinding = ActivityDetailedNotesBinding.inflate(layoutInflater)
         setSupportActionBar(mBinding.ToolbarDetailNotes)
-
-        FacebookSdk.setClientToken("4220eefecece56c04f7a9992e3d3de86")
-        FacebookSdk.setApplicationId("3516244145330325")
-        FacebookSdk.sdkInitialize(this@DetailedNotesActivity);
-        callback = CallbackManager.Factory.create();
 
         position = intent.getIntExtra("position_detail", -1)
         position_search = intent.getIntExtra("search_detail", -1)
@@ -328,12 +323,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
         val path: String? = cursor?.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
         cursor?.close()
         return path
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        callback.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onClick(p0: View?) {
