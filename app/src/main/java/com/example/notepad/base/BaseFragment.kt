@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.example.notepad.R
+import com.example.notepad.databinding.ToastCustomBinding
 
 abstract class BaseFragment<T : ViewBinding> : Fragment() {
 
@@ -45,5 +47,17 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
             )?.replace(id, fragment, tag)
             ?.addToBackStack(backstack)
             ?.commit()
+    }
+
+    open fun createCustomToast(image: Int, message: String) {
+        val toast = Toast(requireActivity())
+        toast.apply {
+            val mBinding = ToastCustomBinding.inflate(layoutInflater)
+            mBinding.tvMessageCustomToast.text = message
+            mBinding.imgWarningToast.setImageResource(image)
+            duration = Toast.LENGTH_SHORT
+            view = mBinding.root
+            show()
+        }
     }
 }

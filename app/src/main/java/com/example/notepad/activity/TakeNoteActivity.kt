@@ -2,24 +2,34 @@ package com.example.notepad.activity
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.Dialog
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Note
+import android.os.Handler
 import android.provider.MediaStore
+import android.text.InputType
 import android.util.Log
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.Button
 import android.widget.DatePicker
+import android.widget.EditText
 import android.widget.TimePicker
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.postDelayed
 import com.bumptech.glide.Glide
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
@@ -31,6 +41,7 @@ import com.example.notepad.custom.DatePickerDialog
 import com.example.notepad.custom.Table
 import com.example.notepad.custom.TimePickerDialog
 import com.example.notepad.databinding.ActivityTakeNoteBinding
+import com.example.notepad.databinding.DialogPasswordCustomBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
@@ -51,6 +62,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     private var timeSet: String = ""
     private var pathImage: String = ""
     private var oldTime: String = ""
+    private var password: EditText? = null
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -86,7 +98,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
 
     override fun setLayout(): View = mBinding.root
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "ClickableViewAccessibility")
     override fun initView() {
         mBinding = ActivityTakeNoteBinding.inflate(layoutInflater)
 
@@ -95,16 +107,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
         mBinding.ButtonBack.setOnClickListener {
-            setDataToBundle(true)
-            setTime(
-                dateMilli,
-                dateMilli.toInt(),
-                "${resources.getString(R.string.note_notification)} ${
-                    mBinding.EditTextTitle.text.toString()
-                }",
-                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
-                    ?: 0,
-            )
+            setPassDialog()
         }
 
         mBinding.TextViewDateTime.text =
@@ -118,6 +121,103 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_take_note, menu)
         return true
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setPassDialog() {
+        val mDialog = Dialog(this@TakeNoteActivity)
+        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        mDialog.setContentView(R.layout.dialog_password_custom)
+        val mWindow = mDialog.window ?: return
+        mWindow.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        mWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val mWindowAttribute = mWindow.attributes
+        mWindowAttribute.gravity = Gravity.BOTTOM
+        mWindow.attributes = mWindowAttribute
+        mDialog.setCancelable(true)
+        val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
+        val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
+        password = mDialog.findViewById(R.id.EditTextPasswordNote)
+        var isHidePass = 0
+        password!!.setOnTouchListener { view, motionEvent ->
+            val DRAWABLE_RIGHT = 2
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                if (motionEvent.rawX >= (password!!.right - password!!.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
+                    isHidePass++
+                    password!!.inputType = InputType.TYPE_CLASS_TEXT
+                    password!!.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        R.drawable.visibility_off,
+                        0
+                    )
+                    if (isHidePass > 1) {
+                        password!!.inputType =
+                            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        password!!.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.visibility,
+                            0
+                        )
+                        isHidePass = 0
+                    }
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
+        noThanks.setOnClickListener {
+            noThanks.setBackgroundResource(R.drawable.bg_btn_set_pass)
+            noThanks.setTextColor(Color.BLACK)
+            setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+            setPass.setTextColor(resources.getColor(R.color.Grey))
+            password!!.setText("")
+            setDataToBundle(true)
+            setTime(
+                dateMilli,
+                dateMilli.toInt(),
+                "${resources.getString(R.string.note_notification)} ${
+                    mBinding.EditTextTitle.text
+                }",
+                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
+                    ?: 0,
+            )
+            mDialog.dismiss()
+        }
+
+        setPass.setOnClickListener {
+            noThanks.setBackgroundResource(R.drawable.bg_btn_no_pass)
+            noThanks.setTextColor(resources.getColor(R.color.Grey))
+            setPass.setBackgroundResource(R.drawable.bg_btn_set_pass)
+            setPass.setTextColor(Color.BLACK)
+            if (password!!.text.isEmpty()) {
+                createCustomToast(
+                    R.drawable.warning,
+                    resources.getString(R.string.pass_not_null)
+                )
+                Handler().postDelayed({
+                    setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                    setPass.setTextColor(resources.getColor(R.color.Grey))
+                }, 1)
+            } else {
+                setDataToBundle(true)
+                setTime(
+                    dateMilli,
+                    dateMilli.toInt(),
+                    "${resources.getString(R.string.note_notification)} ${
+                        mBinding.EditTextTitle.text
+                    }",
+                    mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
+                        ?: 0,
+                )
+                mDialog.dismiss()
+            }
+        }
+        mDialog.show()
     }
 
     private fun setDataToBundle(insert: Boolean) {
@@ -147,6 +247,11 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.image = ""
             pathImage = ""
         }
+        if (password!!.text.isEmpty()) {
+            notesModel.passwordNote = ""
+        } else {
+            notesModel.passwordNote = password!!.text.toString().trim()
+        }
         notesModel.timeOld = oldTime
 
         if (dateMilli < 0) {
@@ -156,10 +261,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.milliSeconds = dateMilli.toInt()
             notesModel.timeSet = timeSet
         }
-        if(insert) {
+        if (insert) {
             mDatabaseHelper?.insertNote(notesModel, Table.type_note)
             mDatabaseHelper?.getAllNotes(Table.type_note)
-        }else {
+        } else {
             mDatabaseHelper?.insertNote(notesModel, Table.type_archive)
             mDatabaseHelper?.getAllNotes(Table.type_archive)
         }
@@ -205,16 +310,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         )
     )
     override fun onBackPressed() {
-        super.onBackPressed()
-        setDataToBundle(true)
-        setTime(
-            dateMilli,
-            dateMilli.toInt(),
-            "${resources.getString(R.string.note_notification)} ${
-                mBinding.EditTextTitle.text.toString()
-            }",
-            mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt() ?: 0,
-        )
+        setPassDialog()
     }
 
     @Deprecated("Deprecated in Java")

@@ -9,6 +9,15 @@ public class NotesModel {
     private int milliSeconds;
     private String timeSet;
     private String timeOld;
+    private String passwordNote;
+
+    public String getPasswordNote() {
+        return passwordNote;
+    }
+
+    public void setPasswordNote(String passwordNote) {
+        this.passwordNote = passwordNote;
+    }
 
     public String getTimeOld() {
         return timeOld;
@@ -74,7 +83,7 @@ public class NotesModel {
         this.notes = notes;
     }
 
-    public NotesModel(int takeNoteID, String title, String image, String timeNote, String notes, int milliSeconds, String timeSet, String timeOld) {
+    public NotesModel(int takeNoteID, String title, String image, String timeNote, String notes, int milliSeconds, String timeSet, String timeOld, String passwordNote) {
         this.takeNoteID = takeNoteID;
         this.title = title;
         this.image = image;
@@ -83,6 +92,7 @@ public class NotesModel {
         this.milliSeconds = milliSeconds;
         this.timeSet = timeSet;
         this.timeOld = timeOld;
+        this.passwordNote = passwordNote;
     }
 
     public NotesModel() {

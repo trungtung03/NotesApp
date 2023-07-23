@@ -34,7 +34,8 @@
             android:padding="5dp"
             android:paddingStart="20dp"
             android:textColor="@color/Grey"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/TextViewNotesRcv"
@@ -85,6 +86,17 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <ImageView
+            android:id="@+id/ImageLockRcv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="visible"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="7dp"
+            android:src="@drawable/lock_note" />
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>

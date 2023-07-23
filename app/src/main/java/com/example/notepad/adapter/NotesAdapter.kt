@@ -28,26 +28,34 @@ class NotesAdapter(
                 onClickItem.invoke(data)
             }
             binding.ButtonClearRcv.setOnClickListener {
-                binding.layout7.visibility = GONE
                 onClickClose.invoke(data)
             }
             binding.TextViewTimeRcv.text = data.timeNote
-            if (data.notes.isNotEmpty() && data.title.isNotEmpty()) {
-                binding.TextViewTitleRcv.visibility = VISIBLE
-                binding.TextViewTitleRcv.text = data.title
-                binding.TextViewNotesRcv.visibility = VISIBLE
-                binding.TextViewNotesRcv.text = data.notes
-            } else if (data.notes.isNotEmpty() && data.title.isEmpty()) {
-                binding.TextViewNotesRcv.visibility = VISIBLE
-                binding.TextViewNotesRcv.text = data.notes
-            } else if (data.title.isNotEmpty() && data.notes.isEmpty()) {
-                binding.TextViewTitleRcv.visibility = VISIBLE
-                binding.TextViewTitleRcv.text = data.title
-            }
             if (data.milliSeconds > 0) {
                 binding.layout7.visibility = VISIBLE
             } else if (data.milliSeconds <= 0) {
                 binding.layout7.visibility = GONE
+            }
+            if(data.passwordNote != "") {
+                binding.TextViewTitleRcv.visibility = GONE
+                binding.TextViewNotesRcv.visibility = GONE
+                binding.TextViewTimeRcv.visibility = GONE
+                binding.ImageLockRcv.visibility = VISIBLE
+            } else {
+                if (data.notes.isNotEmpty() && data.title.isNotEmpty()) {
+                    binding.TextViewTitleRcv.visibility = VISIBLE
+                    binding.TextViewTitleRcv.text = data.title
+                    binding.TextViewNotesRcv.visibility = VISIBLE
+                    binding.TextViewNotesRcv.text = data.notes
+                } else if (data.notes.isNotEmpty() && data.title.isEmpty()) {
+                    binding.TextViewNotesRcv.visibility = VISIBLE
+                    binding.TextViewNotesRcv.text = data.notes
+                } else if (data.title.isNotEmpty() && data.notes.isEmpty()) {
+                    binding.TextViewTitleRcv.visibility = VISIBLE
+                    binding.TextViewTitleRcv.text = data.title
+                }
+                binding.TextViewTimeRcv.visibility = VISIBLE
+                binding.ImageLockRcv.visibility = GONE
             }
         }
     }
