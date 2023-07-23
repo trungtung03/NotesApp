@@ -107,7 +107,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
         mBinding.ButtonBack.setOnClickListener {
-            setPassDialog()
+            setPassDialog(true)
         }
 
         mBinding.TextViewDateTime.text =
@@ -124,7 +124,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setPassDialog() {
+    private fun setPassDialog(isCheckTable: Boolean) {
         val mDialog = Dialog(this@TakeNoteActivity)
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         mDialog.setContentView(R.layout.dialog_password_custom)
@@ -176,7 +176,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
             setPass.setTextColor(resources.getColor(R.color.Grey))
             password!!.setText("")
-            setDataToBundle(true)
+            setDataToBundle(isCheckTable)
             setTime(
                 dateMilli,
                 dateMilli.toInt(),
@@ -204,7 +204,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
                     setPass.setTextColor(resources.getColor(R.color.Grey))
                 }, 1)
             } else {
-                setDataToBundle(true)
+                setDataToBundle(isCheckTable)
                 setTime(
                     dateMilli,
                     dateMilli.toInt(),
@@ -287,7 +287,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             }
 
             R.id.take_note_archive -> {
-                setDataToBundle(false)
+                setPassDialog(false)
             }
 
             R.id.take_note_set_time -> {
@@ -302,6 +302,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated(
         "Deprecated in Java",
         replaceWith = ReplaceWith(
@@ -310,7 +311,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         )
     )
     override fun onBackPressed() {
-        setPassDialog()
+        setPassDialog(true)
     }
 
     @Deprecated("Deprecated in Java")

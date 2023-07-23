@@ -44,6 +44,7 @@ class NotesArchiveActivity : BaseActivity() {
     var timeOld = ""
     var position = -1
     var position_search = -1
+    var passwordNotes = ""
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -85,6 +86,7 @@ class NotesArchiveActivity : BaseActivity() {
         notesModel.milliSeconds = dateMilli.toInt()
         notesModel.timeSet = timeSet
         notesModel.timeOld = timeOld
+        notesModel.passwordNote = passwordNotes
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -138,8 +140,6 @@ class NotesArchiveActivity : BaseActivity() {
                     }
                 } else {
                     setDataToBundle(Table.type_note, Table.type_note)
-//                    mDatabaseHelper?.insertNote(notesModel, "note")
-//                    mDatabaseHelper?.getAllNotes(Table.type_note)
                 }
                 mDatabaseHelper?.deleteNoteByID(noteID, "archive")
                 mDatabaseHelper?.getAllNotes(Table.type_archive)
@@ -203,6 +203,7 @@ class NotesArchiveActivity : BaseActivity() {
                 dateMilli = archiveNoteActivity.milliSeconds.toLong()
                 timeSet = archiveNoteActivity.timeSet
                 timeOld = archiveNoteActivity.timeOld
+                passwordNotes = archiveNoteActivity.passwordNote
             }
         } else if (position < 0 && position_search >= 0) {
             mDatabaseHelper?.getNotesByID(Table.type_archive, position_search).let {
@@ -222,6 +223,7 @@ class NotesArchiveActivity : BaseActivity() {
                             dateMilli = mListSearch.milliSeconds.toLong()
                             timeSet = mListSearch.timeSet
                             timeOld = mListSearch.timeOld
+                            passwordNotes = mListSearch.passwordNote
                             Log.d("time_set", mListSearch.takeNoteID.toString())
                         }
                     }
@@ -318,6 +320,7 @@ class NotesArchiveActivity : BaseActivity() {
             notesModel.timeSet = timeSet
         }
         notesModel.timeOld = timeOld
+        notesModel.passwordNote = passwordNotes
         when (insert) {
             Table.type_archive -> {
                 mDatabaseHelper?.updateNote(notesModel, table)

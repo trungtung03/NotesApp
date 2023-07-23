@@ -199,6 +199,12 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(notesModel.getMilliSeconds()), notesModel.getTimeSet(), notesModel.getTakeNoteID() + ""});
     }
 
+    public void updatePassNote(NotesModel notesModel, String table) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE '" + table + "' SET passwordNote = ? where id = ?",
+                new String[]{String.valueOf(notesModel.getPasswordNote()), notesModel.getTakeNoteID() + ""});
+    }
+
     public void deleteNoteByID(int NoteID, String table) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM '" + table + "' where id = ?", new String[]{String.valueOf(NoteID)});

@@ -12,4 +12,10 @@
     <item
         android:id="@+id/detail_note_set_time"
         android:title="@string/set_time" />
+    <item
+        android:id="@+id/detail_note_set_or_edit_pass"
+        android:title="@string/set_pass" />
+    <item
+        android:id="@+id/detail_note_delete_pass"
+        android:title="@string/delete_pass" />
 </menu>

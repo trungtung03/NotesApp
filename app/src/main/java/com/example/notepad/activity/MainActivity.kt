@@ -35,7 +35,7 @@ import com.example.notepad.fragment.TrashCanFragment
 import com.example.notepad.model.NotesModel
 import com.google.android.material.snackbar.Snackbar
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
     companion object {
         var mListData = arrayListOf<NotesModel>()
         lateinit var searchView: SearchView
@@ -49,6 +49,7 @@ class MainActivity : BaseActivity() {
     var isCheckHideMenu: String? = null
     var mMenu: Menu? = null
     var isCheckVisibleMenu: String = ""
+    var isChangeData_: String ?= ""
 
     override fun setLayout(): View = mBinding.root
 
@@ -231,6 +232,7 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                isChangeData_ = newText
                 fm = supportFragmentManager.findFragmentByTag(SearchFragment::class.java.simpleName)
                 if (fm != null && fm!!.isVisible) {
                     if (newText!!.isEmpty()) {
@@ -296,5 +298,17 @@ class MainActivity : BaseActivity() {
             isCheckVisibleMenu = "visible"
             super.onBackPressedDispatcher
         }
+    }
+
+    override fun onDataPassed(isChangeData: Boolean) {
+        if(isChangeData)
+        mListData.clear()
+        mListData.addAll(
+            mDatabaseHelper!!.searchDataNotes(
+                isChangeData_, SearchFragment.table
+            )
+        )
+        SearchFragment.mNoteAdapter.setData(mListData)
+        SearchFragment.mBinding.ImageSearch.visibility = GONE
     }
 }

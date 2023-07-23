@@ -9,6 +9,9 @@
     <string name="restore">Khôi phục</string>
     <string name="archive">Lưu trữ</string>
     <string name="set_time">Hẹn giờ</string>
+    <string name="set_pass">Đặt mật khẩu</string>
+    <string name="edit_pass">Chỉnh sửa mật khẩu</string>
+    <string name="delete_pass">Xóa mật khẩu</string>
     <string name="unarchive">Bỏ lưu trữ</string>
     <string name="delete_all">Xóa toàn bộ</string>
     <string name="change_color">Đổi màu</string>

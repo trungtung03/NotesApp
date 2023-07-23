@@ -2,16 +2,28 @@ package com.example.notepad.activity
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
+import android.text.InputType
 import android.util.Log
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -45,6 +57,8 @@ class NotesRecycleActivity : BaseActivity() {
     val notesModel = NotesModel()
     var timeSet = ""
     var timeOld = ""
+    var passwordNotes = ""
+    var password: EditText? = null
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -91,6 +105,7 @@ class NotesRecycleActivity : BaseActivity() {
         notesModel.milliSeconds = dateMilli?.toInt() ?: -1
         notesModel.timeSet = timeSet
         notesModel.timeOld = timeOld
+        notesModel.passwordNote = passwordNotes
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -98,7 +113,7 @@ class NotesRecycleActivity : BaseActivity() {
         return true
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "ClickableViewAccessibility")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.recycle_note_add_image -> {
@@ -151,9 +166,106 @@ class NotesRecycleActivity : BaseActivity() {
             }
 
             R.id.recycle_note_forever -> {
-                mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
-                mDatabaseHelper?.getAllNotes(Table.type_recycle)
-                backToMain()
+                if (passwordNotes != "") {
+                    val mDialog = Dialog(this@NotesRecycleActivity)
+                    mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    mDialog.setContentView(R.layout.dialog_password_custom)
+                    val mWindow = mDialog.window ?: return false
+                    mWindow.setLayout(
+                        WindowManager.LayoutParams.MATCH_PARENT,
+                        WindowManager.LayoutParams.WRAP_CONTENT
+                    )
+                    mWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    val mWindowAttribute = mWindow.attributes
+                    mWindowAttribute.gravity = Gravity.BOTTOM
+                    mWindow.attributes = mWindowAttribute
+                    mDialog.setCancelable(true)
+                    mDialog.findViewById<TextView>(R.id.Text1).text =
+                        mBinding.TextTitleRecycleNotes.text.toString().trim()
+                    mDialog.findViewById<TextView>(R.id.TextTitle).text =
+                        "Vui lòng nhập mật khẩu để xóa vĩnh viễn ghi chú"
+                    val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
+                    val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
+                    password =
+                        mDialog.findViewById<EditText>(R.id.EditTextPasswordNote)
+                    noThanks.text = "Đóng"
+                    setPass.text = "Xóa vĩnh viễn"
+
+                    var isHidePass = 0
+                    password!!.setOnTouchListener { view, motionEvent ->
+                        val DRAWABLE_RIGHT = 2
+                        if (motionEvent.action == MotionEvent.ACTION_UP) {
+                            if (motionEvent.rawX >= (password!!.right - password!!.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
+                                isHidePass++
+                                password!!.inputType = InputType.TYPE_CLASS_TEXT
+                                password!!.setCompoundDrawablesWithIntrinsicBounds(
+                                    0,
+                                    0,
+                                    R.drawable.visibility_off,
+                                    0
+                                )
+                                if (isHidePass > 1) {
+                                    password!!.inputType =
+                                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                                    password!!.setCompoundDrawablesWithIntrinsicBounds(
+                                        0,
+                                        0,
+                                        R.drawable.visibility,
+                                        0
+                                    )
+                                    isHidePass = 0
+                                }
+                                return@setOnTouchListener true
+                            }
+                        }
+                        return@setOnTouchListener false
+                    }
+                    noThanks.setOnClickListener {
+                        noThanks.setBackgroundResource(R.drawable.bg_btn_set_pass)
+                        noThanks.setTextColor(Color.BLACK)
+                        setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                        setPass.setTextColor(resources.getColor(R.color.Grey))
+                        password!!.setText("")
+                        mDialog.dismiss()
+                    }
+
+                    setPass.setOnClickListener { _ ->
+                        noThanks.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                        noThanks.setTextColor(resources.getColor(R.color.Grey))
+                        setPass.setBackgroundResource(R.drawable.bg_btn_set_pass)
+                        setPass.setTextColor(Color.BLACK)
+                        if (password!!.text.isEmpty()) {
+                            createCustomToast(
+                                R.drawable.warning,
+                                resources.getString(R.string.pass_not_null)
+                            )
+                            Handler().postDelayed({
+                                setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                                setPass.setTextColor(resources.getColor(R.color.Grey))
+                            }, 1)
+                        } else {
+                            if (password!!.text.toString().trim() != passwordNotes) {
+                                createCustomToast(
+                                    R.drawable.warning,
+                                    "Mật khẩu bạn vừa nhập không đúng"
+                                )
+                                Handler().postDelayed({
+                                    setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                                    setPass.setTextColor(resources.getColor(R.color.Grey))
+                                }, 1)
+                            } else {
+                                mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
+                                mDatabaseHelper?.getAllNotes(Table.type_recycle)
+                                backToMain()
+                            }
+                        }
+                    }
+                    mDialog.show()
+                } else {
+                    mDatabaseHelper?.deleteNoteByID(noteID, "recycle")
+                    mDatabaseHelper?.getAllNotes(Table.type_recycle)
+                    backToMain()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -178,6 +290,7 @@ class NotesRecycleActivity : BaseActivity() {
                 dateMilli = recycleNoteActivity.milliSeconds.toLong()
                 timeSet = recycleNoteActivity.timeSet
                 timeOld = recycleNoteActivity.timeOld
+                passwordNotes = recycleNoteActivity.passwordNote
                 Log.d("time_set", position.toString())
             }
         } else if (position < 0 && position_search >= 0) {
@@ -198,6 +311,7 @@ class NotesRecycleActivity : BaseActivity() {
                             dateMilli = mListSearch.milliSeconds.toLong()
                             timeSet = mListSearch.timeSet
                             timeOld = mListSearch.timeOld
+                            passwordNotes = mListSearch.passwordNote
                             Log.d("time_set", mListSearch.takeNoteID.toString())
                         }
                     }
@@ -324,6 +438,7 @@ class NotesRecycleActivity : BaseActivity() {
             notesModel.timeSet = timeSet
         }
         notesModel.timeOld = timeOld
+        notesModel.passwordNote = passwordNotes
         if (insert) {
             mDatabaseHelper?.updateNote(notesModel, table)
             mDatabaseHelper?.getAllNotes(table)
