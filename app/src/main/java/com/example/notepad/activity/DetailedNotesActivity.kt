@@ -197,8 +197,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
                 mWindowAttribute.gravity = Gravity.BOTTOM
                 mWindow.attributes = mWindowAttribute
                 mDialog.setCancelable(true)
-                mDialog.findViewById<TextView>(R.id.Text1).text =
-                    mBinding.TextTitleDetailNotes.text.toString().trim()
+                mDialog.findViewById<TextView>(R.id.Text1).text = "Thay đổi mật khẩu"
                 mDialog.findViewById<TextView>(R.id.TextTitle).text =
                     "Vui lòng nhập mật khẩu mới cho ghi chú"
                 val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
@@ -289,8 +288,7 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
                 mWindowAttribute.gravity = Gravity.BOTTOM
                 mWindow.attributes = mWindowAttribute
                 mDialog.setCancelable(true)
-                mDialog.findViewById<TextView>(R.id.Text1).text =
-                    mBinding.TextTitleDetailNotes.text.toString().trim()
+                mDialog.findViewById<TextView>(R.id.Text1).text = "Gỡ mật khẩu"
                 mDialog.findViewById<TextView>(R.id.TextTitle).text =
                     "Vui lòng nhập mật khẩu cũ để xóa mật khẩu của ghi chú"
                 val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)

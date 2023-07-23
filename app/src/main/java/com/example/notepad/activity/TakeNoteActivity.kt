@@ -26,10 +26,10 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.TimePicker
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.postDelayed
 import com.bumptech.glide.Glide
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
@@ -41,10 +41,8 @@ import com.example.notepad.custom.DatePickerDialog
 import com.example.notepad.custom.Table
 import com.example.notepad.custom.TimePickerDialog
 import com.example.notepad.databinding.ActivityTakeNoteBinding
-import com.example.notepad.databinding.DialogPasswordCustomBinding
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.random.Random
 
 @Suppress("DEPRECATION")
 class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetListener,
@@ -63,6 +61,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
     private var pathImage: String = ""
     private var oldTime: String = ""
     private var password: EditText? = null
+    private var passwordNotes: String = ""
 
     private val mActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -107,7 +106,16 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
         mBinding.ButtonBack.setOnClickListener {
-            setPassDialog(true)
+            setDataToBundle(true)
+            setTime(
+                dateMilli,
+                dateMilli.toInt(),
+                "${resources.getString(R.string.note_notification)} ${
+                    mBinding.EditTextTitle.text
+                }",
+                mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
+                    ?: 0,
+            )
         }
 
         mBinding.TextViewDateTime.text =
@@ -120,11 +128,20 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_take_note, menu)
+        if (passwordNotes != "") {
+            menu?.findItem(R.id.take_note_set_pass)?.title =
+                resources.getString(R.string.edit_pass)
+            menu?.findItem(R.id.take_note_delete_pass)?.isVisible = true
+        } else {
+            menu?.findItem(R.id.take_note_set_pass)?.title =
+                resources.getString(R.string.set_pass)
+            menu?.findItem(R.id.take_note_delete_pass)?.isVisible = false
+        }
         return true
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setPassDialog(isCheckTable: Boolean) {
+    private fun setPassDialog(isCheckTable: Boolean, update: Boolean) {
         val mDialog = Dialog(this@TakeNoteActivity)
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         mDialog.setContentView(R.layout.dialog_password_custom)
@@ -141,6 +158,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
         val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
         password = mDialog.findViewById(R.id.EditTextPasswordNote)
+        if(passwordNotes != "") {
+            mDialog.findViewById<TextView>(R.id.Text1).text = "Thay đổi mật khẩu"
+            mDialog.findViewById<TextView>(R.id.TextTitle).text = "Nhập mật khẩu mới"
+        }
         var isHidePass = 0
         password!!.setOnTouchListener { view, motionEvent ->
             val DRAWABLE_RIGHT = 2
@@ -204,16 +225,12 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
                     setPass.setTextColor(resources.getColor(R.color.Grey))
                 }, 1)
             } else {
-                setDataToBundle(isCheckTable)
-                setTime(
-                    dateMilli,
-                    dateMilli.toInt(),
-                    "${resources.getString(R.string.note_notification)} ${
-                        mBinding.EditTextTitle.text
-                    }",
-                    mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID?.toInt()
-                        ?: 0,
-                )
+                passwordNotes = password!!.text.toString().trim()
+                if (!isCheckTable && !update) {
+                    setDataToBundle(isCheckTable)
+                } else if (!isCheckTable && update) {
+                    invalidateOptionsMenu()
+                }
                 mDialog.dismiss()
             }
         }
@@ -247,10 +264,10 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             notesModel.image = ""
             pathImage = ""
         }
-        if (password!!.text.isEmpty()) {
-            notesModel.passwordNote = ""
+        if (passwordNotes != "") {
+            notesModel.passwordNote = passwordNotes
         } else {
-            notesModel.passwordNote = password!!.text.toString().trim()
+            notesModel.passwordNote = ""
         }
         notesModel.timeOld = oldTime
 
@@ -271,6 +288,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         openActivity(MainActivity::class.java)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.take_note_add_image -> {
@@ -287,7 +305,11 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             }
 
             R.id.take_note_archive -> {
-                setPassDialog(false)
+                if(passwordNotes != "") {
+                    setDataToBundle(false)
+                } else {
+                    setPassDialog(isCheckTable = false, update = false)
+                }
             }
 
             R.id.take_note_set_time -> {
@@ -297,6 +319,107 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
                     supportFragmentManager,
                     DatePickerDialog::class.java.simpleName.toString()
                 )
+            }
+
+            R.id.take_note_set_pass -> {
+                setPassDialog(isCheckTable = false, update = true)
+            }
+
+            R.id.take_note_delete_pass -> {
+                val mDialog = Dialog(this@TakeNoteActivity)
+                mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                mDialog.setContentView(R.layout.dialog_password_custom)
+                val mWindow = mDialog.window ?: return false
+                mWindow.setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                )
+                mWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                val mWindowAttribute = mWindow.attributes
+                mWindowAttribute.gravity = Gravity.BOTTOM
+                mWindow.attributes = mWindowAttribute
+                mDialog.setCancelable(true)
+                mDialog.findViewById<TextView>(R.id.Text1).text =
+                    mBinding.EditTextTitle.text.toString().trim()
+                mDialog.findViewById<TextView>(R.id.TextTitle).text =
+                    "Vui lòng nhập mật khẩu vừa tạo để xóa mật khẩu của ghi chú"
+                val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
+                val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
+                password =
+                    mDialog.findViewById(R.id.EditTextPasswordNote)
+                noThanks.text = "Đóng"
+                setPass.text = "Gỡ mật khẩu"
+
+                var isHidePass = 0
+                password!!.setOnTouchListener { view, motionEvent ->
+                    val DRAWABLE_RIGHT = 2
+                    if (motionEvent.action == MotionEvent.ACTION_UP) {
+                        if (motionEvent.rawX >= (password!!.right - password!!.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
+                            isHidePass++
+                            password!!.inputType = InputType.TYPE_CLASS_TEXT
+                            password!!.setCompoundDrawablesWithIntrinsicBounds(
+                                0,
+                                0,
+                                R.drawable.visibility_off,
+                                0
+                            )
+                            if (isHidePass > 1) {
+                                password!!.inputType =
+                                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                                password!!.setCompoundDrawablesWithIntrinsicBounds(
+                                    0,
+                                    0,
+                                    R.drawable.visibility,
+                                    0
+                                )
+                                isHidePass = 0
+                            }
+                            return@setOnTouchListener true
+                        }
+                    }
+                    return@setOnTouchListener false
+                }
+                noThanks.setOnClickListener {
+                    noThanks.setBackgroundResource(R.drawable.bg_btn_set_pass)
+                    noThanks.setTextColor(Color.BLACK)
+                    setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                    setPass.setTextColor(resources.getColor(R.color.Grey))
+                    password!!.setText("")
+                    mDialog.dismiss()
+                }
+
+                setPass.setOnClickListener { _ ->
+                    noThanks.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                    noThanks.setTextColor(resources.getColor(R.color.Grey))
+                    setPass.setBackgroundResource(R.drawable.bg_btn_set_pass)
+                    setPass.setTextColor(Color.BLACK)
+                    if (password!!.text.isEmpty()) {
+                        createCustomToast(
+                            R.drawable.warning,
+                            resources.getString(R.string.pass_not_null)
+                        )
+                        Handler().postDelayed({
+                            setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                            setPass.setTextColor(resources.getColor(R.color.Grey))
+                        }, 1)
+                    } else {
+                        if (password!!.text.toString().trim() != passwordNotes) {
+                            createCustomToast(
+                                R.drawable.warning,
+                                "Mật khẩu bạn vừa nhập không đúng"
+                            )
+                            Handler().postDelayed({
+                                setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                                setPass.setTextColor(resources.getColor(R.color.Grey))
+                            }, 1)
+                        } else {
+                            passwordNotes = ""
+                            mDialog.dismiss()
+                            invalidateOptionsMenu()
+                        }
+                    }
+                }
+                mDialog.show()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -311,7 +434,16 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         )
     )
     override fun onBackPressed() {
-        setPassDialog(true)
+        setDataToBundle(true)
+        setTime(
+            dateMilli,
+            dateMilli.toInt(),
+            "${resources.getString(R.string.note_notification)} ${
+                mBinding.EditTextTitle.text
+            }",
+            mDatabaseHelper?.getLiveData(Table.type_note)?.value?.first()?.takeNoteID
+                ?: 0,
+        )
     }
 
     @Deprecated("Deprecated in Java")
