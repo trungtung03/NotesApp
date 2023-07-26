@@ -1,32 +1,58 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu1"
+        android:title="Note"
+        app:showAsAction="always">
+        <menu>
 
-    <group
-        android:id="@+id/menu_group1"
-        android:checkableBehavior="single">
+            <group
+                android:id="@+id/menu_group1"
+                android:checkableBehavior="single">
 
-        <item
-            android:id="@+id/item_notes"
-            android:icon="@drawable/home"
-            android:title="@string/notes" />
+                <item
+                    android:id="@+id/item_notes"
+                    android:icon="@drawable/home"
+                    android:title="@string/notes" />
 
-    </group>
+            </group>
 
-    <group android:id="@+id/menu_group2">
+            <group android:id="@+id/menu_group2">
 
-        <item
-            android:id="@+id/item_deleted"
-            android:icon="@drawable/delete"
-            android:title="@string/deleted" />
+                <item
+                    android:id="@+id/item_deleted"
+                    android:icon="@drawable/delete"
+                    android:title="@string/deleted" />
 
-    </group>
+            </group>
 
-    <group android:id="@+id/menu_group3">
+            <group android:id="@+id/menu_group3">
 
-        <item
-            android:id="@+id/item_archived"
-            android:icon="@drawable/archive_menu"
-            android:title="@string/archived" />
+                <item
+                    android:id="@+id/item_archived"
+                    android:icon="@drawable/archive_menu"
+                    android:title="@string/archived" />
 
-    </group>
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu"
+        android:title="Tiện ích"
+        app:showAsAction="always">
+        <menu>
+            <group
+                android:id="@+id/menu_group4"
+                android:checkableBehavior="none">
+                <item
+                    android:id="@+id/item_qlct"
+                    android:icon="@drawable/archive_menu"
+                    android:title="Quản lý chi tiêu "
+                    android:checkable="false"
+                    android:checked="false"/>
+
+            </group>
+        </menu>
+    </item>
 
 </menu>

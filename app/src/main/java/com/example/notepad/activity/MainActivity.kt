@@ -3,9 +3,8 @@ package com.example.notepad.activity
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
 import android.graphics.Color
-import android.media.AudioAttributes
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.util.Log
@@ -33,6 +32,7 @@ import com.example.notepad.fragment.NotesFragment
 import com.example.notepad.fragment.SearchFragment
 import com.example.notepad.fragment.TrashCanFragment
 import com.example.notepad.model.NotesModel
+import com.example.notepad.ui.MainQLTActivity
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
@@ -49,7 +49,7 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
     var isCheckHideMenu: String? = null
     var mMenu: Menu? = null
     var isCheckVisibleMenu: String = ""
-    var isChangeData_: String ?= ""
+    var isChangeData_: String? = ""
 
     override fun setLayout(): View = mBinding.root
 
@@ -75,6 +75,7 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
             )
             notificationManager.createNotificationChannel(channel)
         }
+
 
         mDatabaseHelper = MainApp.getInstant()?.mDatabaseHelper
 
@@ -104,6 +105,10 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
                 )
                 mBinding.TextTitle.text = getString(string.archived)
             }
+        } else {
+            mBinding.NavigationView.menu.findItem(id.item_notes).isChecked = true
+            mBinding.NavigationView.menu.findItem(id.item_deleted).isChecked = false
+            mBinding.NavigationView.menu.findItem(id.item_archived).isChecked = false
         }
         mBinding.ButtonDeleteAll.setOnClickListener { v ->
             if (TrashCanFragment.mListData.size > 0) {
@@ -127,6 +132,10 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
                 createCustomToast(R.drawable.warning, resources.getString(R.string.recycle_null))
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
     }
 
     private fun setupNavigationMenu() {
@@ -194,6 +203,12 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
                         mMenu?.findItem(id.menu_search)?.isVisible = false
                     }
                     true
+                }
+
+                id.item_qlct -> {
+                    mBinding.DrawerLayout.closeDrawer(START)
+                    startActivity(Intent(this, MainQLTActivity::class.java))
+                    false
                 }
 
                 else -> false
@@ -296,13 +311,13 @@ class MainActivity : BaseActivity(), SearchFragment.OnDataPassedListener {
                 NotesFragment::class.java.simpleName
             )
             isCheckVisibleMenu = "visible"
-            super.onBackPressedDispatcher
+            super.onBackPressed()
         }
     }
 
     override fun onDataPassed(isChangeData: Boolean) {
-        if(isChangeData)
-        mListData.clear()
+        if (isChangeData)
+            mListData.clear()
         mListData.addAll(
             mDatabaseHelper!!.searchDataNotes(
                 isChangeData_, SearchFragment.table

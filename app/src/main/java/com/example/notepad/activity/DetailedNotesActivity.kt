@@ -2,9 +2,10 @@ package com.example.notepad.activity
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.Dialog
 import android.app.PendingIntent
-import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.text.InputType
@@ -29,6 +31,7 @@ import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.TimePicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -42,14 +45,10 @@ import com.example.notepad.custom.DatePickerDialog
 import com.example.notepad.custom.Table
 import com.example.notepad.custom.TimePickerDialog
 import com.example.notepad.databinding.ActivityDetailedNotesBinding
-import com.example.notepad.fragment.SearchFragment.Companion.mNoteAdapter
-import com.example.notepad.fragment.SearchFragment.Companion.table
 import com.example.notepad.model.NotesModel
-import com.facebook.CallbackManager
-import com.facebook.FacebookSdk
+import com.example.notepad.ui.inapp.PurchaseInAppActivity
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 
 
 class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
@@ -90,6 +89,22 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
             }
         }
     }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            openGallery()
+        } else {
+            createCustomToast(
+                R.drawable.warning,
+                PERMISSION_FAIL
+            )
+        }
+    }
+
+    fun getCoin() {
+        mBinding.coin.text = MainApp.getInstant()?.preference?.getValueCoin().toString()
+    }
 
     override fun setLayout(): View = mBinding.root
 
@@ -97,6 +112,15 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
     override fun initView() {
         mBinding = ActivityDetailedNotesBinding.inflate(layoutInflater)
         setSupportActionBar(mBinding.ToolbarDetailNotes)
+        getCoin()
+        mBinding.coin.setOnClickListener {
+            startActivity(
+                Intent(
+                    this@DetailedNotesActivity,
+                    PurchaseInAppActivity::class.java
+                )
+            )
+        }
 
         position = intent.getIntExtra("position_detail", -1)
         position_search = intent.getIntExtra("search_detail", -1)
@@ -116,7 +140,6 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
         notesModel.timeSet = timeSet
         notesModel.timeOld = timeOld
         notesModel.passwordNote = passwordNote
-
         timeInstance = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
     }
 
@@ -141,15 +164,24 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.detail_note_add_image -> {
-                if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    openGallery()
-                } else {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                        MY_REQUEST_CODE
-                    )
-                }
+                Log.d(ContentValues.TAG, "onOptionsItemSelected: ${Build.VERSION.SDK_INT}")
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
+                    Log.d(ContentValues.TAG, "onOptionsItemSelected:OKE")
+                    if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                        openGallery()
+                    } else {
+                        requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+                    }
+                } else
+                    if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        openGallery()
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                            MY_REQUEST_CODE
+                        )
+                    }
             }
 
             R.id.detail_note_delete -> {
@@ -184,94 +216,34 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
             }
 
             R.id.detail_note_set_or_edit_pass -> {
-                val mDialog = Dialog(this@DetailedNotesActivity)
-                mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                mDialog.setContentView(R.layout.dialog_password_custom)
-                val mWindow = mDialog.window ?: return false
-                mWindow.setLayout(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                )
-                mWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                val mWindowAttribute = mWindow.attributes
-                mWindowAttribute.gravity = Gravity.BOTTOM
-                mWindow.attributes = mWindowAttribute
-                mDialog.setCancelable(true)
-                mDialog.findViewById<TextView>(R.id.Text1).text = "Thay đổi mật khẩu"
-                mDialog.findViewById<TextView>(R.id.TextTitle).text =
-                    "Vui lòng nhập mật khẩu mới cho ghi chú"
-                val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
-                val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
-                password =
-                    mDialog.findViewById(R.id.EditTextPasswordNote)
-                noThanks.text = "Đóng"
-                setPass.text = "Đặt mật khẩu"
-                if (passwordNote != "") {
-                    setPass.text = "Đổi mật khẩu"
-                }
+                val dialog = AlertDialog.Builder(this)
+                dialog.setMessage("Bạn có muốn đặt  mật tốn 1 vàng không ?")
+                    .setTitle("Đặt mật khẩu ?")
+                dialog.setPositiveButton("Oke") { dialog, which ->
+                    MainApp.getInstant()?.preference?.apply {
+                        if (getValueCoin() > 0) {
+                            setValueCoin(getValueCoin() - 1)
+                            showDialogSetPass()
+                            Toast.makeText(
+                                this@DetailedNotesActivity,
+                                "Đã thêm  thành công và trù 1 vàng",
+                                Toast.LENGTH_SHORT
 
-                var isHidePass = 0
-                password!!.setOnTouchListener { view, motionEvent ->
-                    val DRAWABLE_RIGHT = 2
-                    if (motionEvent.action == MotionEvent.ACTION_UP) {
-                        if (motionEvent.rawX >= (password!!.right - password!!.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
-                            isHidePass++
-                            password!!.inputType = InputType.TYPE_CLASS_TEXT
-                            password!!.setCompoundDrawablesWithIntrinsicBounds(
-                                0,
-                                0,
-                                R.drawable.visibility_off,
-                                0
+                            ).show()
+                            getCoin()
+                        } else startActivity(
+                            Intent(
+                                this@DetailedNotesActivity,
+                                PurchaseInAppActivity::class.java
                             )
-                            if (isHidePass > 1) {
-                                password!!.inputType =
-                                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                                password!!.setCompoundDrawablesWithIntrinsicBounds(
-                                    0,
-                                    0,
-                                    R.drawable.visibility,
-                                    0
-                                )
-                                isHidePass = 0
-                            }
-                            return@setOnTouchListener true
-                        }
-                    }
-                    return@setOnTouchListener false
-                }
-                noThanks.setOnClickListener {
-                    noThanks.setBackgroundResource(R.drawable.bg_btn_set_pass)
-                    noThanks.setTextColor(Color.BLACK)
-                    setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
-                    setPass.setTextColor(resources.getColor(R.color.Grey))
-                    password!!.setText("")
-                    mDialog.dismiss()
-                }
-
-                setPass.setOnClickListener { _ ->
-                    noThanks.setBackgroundResource(R.drawable.bg_btn_no_pass)
-                    noThanks.setTextColor(resources.getColor(R.color.Grey))
-                    setPass.setBackgroundResource(R.drawable.bg_btn_set_pass)
-                    setPass.setTextColor(Color.BLACK)
-                    if (password!!.text.isEmpty()) {
-                        createCustomToast(
-                            R.drawable.warning,
-                            resources.getString(R.string.pass_not_null)
                         )
-                        Handler().postDelayed({
-                            setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
-                            setPass.setTextColor(resources.getColor(R.color.Grey))
-                        }, 1)
-                    } else {
-                        passwordNote = password!!.text.toString().trim()
-                        notesModel.passwordNote = password!!.text.toString().trim()
-                        mDatabaseHelper?.updatePassNote(notesModel, Table.type_note)
-                        mDatabaseHelper?.getAllNotes(Table.type_note)
-                        mDialog.dismiss()
-                        invalidateOptionsMenu()
                     }
+
                 }
-                mDialog.show()
+                dialog.setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                }.create()
+                dialog.show()
             }
 
             R.id.detail_note_delete_pass -> {
@@ -374,6 +346,98 @@ class DetailedNotesActivity : BaseActivity(), View.OnClickListener,
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun showDialogSetPass() {
+        val mDialog = Dialog(this@DetailedNotesActivity)
+        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        mDialog.setContentView(R.layout.dialog_password_custom)
+        val mWindow = mDialog.window
+        mWindow?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        mWindow?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val mWindowAttribute = mWindow?.attributes
+        mWindowAttribute?.gravity = Gravity.BOTTOM
+        mWindow?.attributes = mWindowAttribute
+        mDialog.setCancelable(true)
+        mDialog.findViewById<TextView>(R.id.Text1).text = "Thay đổi mật khẩu"
+        mDialog.findViewById<TextView>(R.id.TextTitle).text =
+            "Vui lòng nhập mật khẩu mới cho ghi chú"
+        val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
+        val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
+        password =
+            mDialog.findViewById(R.id.EditTextPasswordNote)
+        noThanks.text = "Đóng"
+        setPass.text = "Đặt mật khẩu"
+        if (passwordNote != "") {
+            setPass.text = "Đổi mật khẩu"
+        }
+
+        var isHidePass = 0
+        password!!.setOnTouchListener { view, motionEvent ->
+            val DRAWABLE_RIGHT = 2
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                if (motionEvent.rawX >= (password!!.right - password!!.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
+                    isHidePass++
+                    password!!.inputType = InputType.TYPE_CLASS_TEXT
+                    password!!.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        R.drawable.visibility_off,
+                        0
+                    )
+                    if (isHidePass > 1) {
+                        password!!.inputType =
+                            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        password!!.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.visibility,
+                            0
+                        )
+                        isHidePass = 0
+                    }
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
+        noThanks.setOnClickListener {
+            noThanks.setBackgroundResource(R.drawable.bg_btn_set_pass)
+            noThanks.setTextColor(Color.BLACK)
+            setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+            setPass.setTextColor(resources.getColor(R.color.Grey))
+            password!!.setText("")
+            mDialog.dismiss()
+        }
+
+        setPass.setOnClickListener { _ ->
+            noThanks.setBackgroundResource(R.drawable.bg_btn_no_pass)
+            noThanks.setTextColor(resources.getColor(R.color.Grey))
+            setPass.setBackgroundResource(R.drawable.bg_btn_set_pass)
+            setPass.setTextColor(Color.BLACK)
+            if (password!!.text.isEmpty()) {
+                createCustomToast(
+                    R.drawable.warning,
+                    resources.getString(R.string.pass_not_null)
+                )
+                Handler().postDelayed({
+                    setPass.setBackgroundResource(R.drawable.bg_btn_no_pass)
+                    setPass.setTextColor(resources.getColor(R.color.Grey))
+                }, 1)
+            } else {
+                passwordNote = password!!.text.toString().trim()
+                notesModel.passwordNote = password!!.text.toString().trim()
+                mDatabaseHelper?.updatePassNote(notesModel, Table.type_note)
+                mDatabaseHelper?.getAllNotes(Table.type_note)
+                mDialog.dismiss()
+                invalidateOptionsMenu()
+            }
+        }
+        mDialog.show()
+
     }
 
     @SuppressLint("SuspiciousIndentation", "SetTextI18n")

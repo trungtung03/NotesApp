@@ -33,7 +33,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.bumptech.glide.Glide
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
-import com.example.notepad.model.NotesModel
 import com.example.notepad.NotesDatabaseHelper
 import com.example.notepad.R
 import com.example.notepad.base.BaseActivity
@@ -41,6 +40,7 @@ import com.example.notepad.custom.DatePickerDialog
 import com.example.notepad.custom.Table
 import com.example.notepad.custom.TimePickerDialog
 import com.example.notepad.databinding.ActivityTakeNoteBinding
+import com.example.notepad.model.NotesModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -158,7 +158,7 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
         val noThanks = mDialog.findViewById<Button>(R.id.ButtonNoPass)
         val setPass = mDialog.findViewById<Button>(R.id.ButtonSetPass)
         password = mDialog.findViewById(R.id.EditTextPasswordNote)
-        if(passwordNotes != "") {
+        if (passwordNotes != "") {
             mDialog.findViewById<TextView>(R.id.Text1).text = "Thay đổi mật khẩu"
             mDialog.findViewById<TextView>(R.id.TextTitle).text = "Nhập mật khẩu mới"
         }
@@ -305,11 +305,12 @@ class TakeNoteActivity : BaseActivity(), android.app.DatePickerDialog.OnDateSetL
             }
 
             R.id.take_note_archive -> {
-                if(passwordNotes != "") {
+                if (passwordNotes != "") {
                     setDataToBundle(false)
                 } else {
                     setPassDialog(isCheckTable = false, update = false)
                 }
+
             }
 
             R.id.take_note_set_time -> {
