@@ -17,20 +17,23 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/category"
-            android:hint="Hạng mục"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Hạng mục" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Diễn giải" />
-
-
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/date"
