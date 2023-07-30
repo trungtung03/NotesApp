@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
 import com.example.notepad.activity.DetailedNotesActivity
@@ -329,9 +330,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>() {
             }
         })
 
-        mBinding.RecyclerViewNotes.layoutManager =
-            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-
+        mBinding.RecyclerViewNotes.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         mBinding.RecyclerViewNotes.adapter = mNoteAdapter
     }
 

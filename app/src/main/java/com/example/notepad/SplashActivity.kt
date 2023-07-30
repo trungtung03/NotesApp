@@ -18,6 +18,7 @@ class SplashActivity : AppCompatActivity() {
                     MainActivity::class.java
                 )
             )
+            finish()
         }, 2000)
     }
 }

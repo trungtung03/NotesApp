@@ -21,6 +21,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/RecyclerViewNotes"
             android:layout_width="match_parent"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
             android:layout_height="match_parent"
             tools:listitem="@layout/item_rcv_list_note" />
 
