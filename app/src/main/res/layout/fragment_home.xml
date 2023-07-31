@@ -59,10 +59,10 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.example.notepad.custom.ColumnChartView
+                    <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/chart"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
+                        android:layout_height="450dp"
                         android:layout_marginTop="@dimen/_12dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
