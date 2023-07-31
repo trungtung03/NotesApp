@@ -38,8 +38,6 @@ class HomeFragment : BaseFragmentWithBinding<FragmentHomeBinding>() {
 
     override fun init() {
         viewModel.init()
-        viewModel.getListSpending()
-        viewModel.getLisCollect()
         viewModel.getTotalExpenditure()
     }
 
@@ -49,9 +47,10 @@ class HomeFragment : BaseFragmentWithBinding<FragmentHomeBinding>() {
             val entries = ArrayList<PieEntry>()
             val money = it.second
             val first = it.first
+            val title = arrayListOf<String>("Tổng thu", "Tổng chi", "Tiết kiệm")
             for (i in 0 until it.first.size) {
-                Log.d("float__", ("${first[i]} | ${money[i]} Tr").toString())
-                entries.add(PieEntry(first[i], "${money[i]} Tr"))
+                Log.d("Tổng thu", ("${first[i]} | ${money[i]} Tr").toString())
+                entries.add(PieEntry(first[i], "${money[i]} Tr\n${title[i]}"))
             }
 
             val dataSet = PieDataSet(entries, "")
