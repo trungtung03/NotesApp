@@ -14,52 +14,73 @@
         android:paddingStart="5dp"
         android:paddingTop="5dp"
         android:paddingEnd="5dp"
-        app:layout_constraintBottom_toTopOf="@id/LllAddNotes"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/RecyclerViewNotes"
             android:layout_width="match_parent"
-            android:layout_marginEnd="6dp"
-            android:layout_marginStart="6dp"
             android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             tools:listitem="@layout/item_rcv_list_note" />
 
-        <ImageView
-            android:id="@+id/ImageNotebook"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/notebook" />
+        <RelativeLayout
+            android:id="@+id/LayoutNoData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/ImageNotebook"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/book" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/text2"
+                android:textSize="16sp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"
+                android:textColor="@color/Black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ImageNotebook"
+                android:layout_centerHorizontal="true"
+                android:text="Bạn không có ghi chú nào !"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text2"
+                android:textSize="14sp"
+                android:textColor="@color/Grey"
+                android:layout_centerHorizontal="true"
+                android:text="Click vào nút bên dưới để thêm ghi chú" />
+
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/NoDataNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="30dp"
+            android:backgroundTint="@color/LightBlue500"
+            app:cardCornerRadius="50dp">
+
+            <ImageView
+                android:id="@+id/AddNotes"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/plus_circle" />
+
+        </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/LllAddNotes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="10"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <Button
-            android:id="@+id/AddNotes"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="10"
-            android:background="@android:color/transparent"
-            android:drawableEnd="@drawable/take_note"
-            android:gravity="start|center_vertical"
-            android:paddingStart="20dp"
-            android:text="@string/notes"
-            android:textAllCaps="false"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            tools:ignore="InefficientWeight,RtlSymmetry" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

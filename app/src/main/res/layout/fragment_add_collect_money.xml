@@ -17,32 +17,55 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/category"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Hạng mục"
+                android:padding="10dp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Hạng mục" />
+            android:layout_marginTop="10dp">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Diễn giải"
+                android:padding="10dp" />
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/content"
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Diễn giải" />
+            android:layout_marginTop="10dp">
 
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ngày"
+                android:inputType="date"
+                android:padding="10dp" />
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ngày"
-            android:inputType="date" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.example.notepad.custom.CurrencyEditText
-            android:id="@+id/money"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="số tiền chi" />
+            <com.example.notepad.custom.CurrencyEditText
+                android:id="@+id/money"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="số tiền chi"
+                android:layout_marginTop="10dp"
+                android:padding="10dp" />
 
         <Button
             android:id="@+id/save"
@@ -51,9 +74,10 @@
             android:layout_marginStart="@dimen/_12dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="@dimen/_12dp"
-            android:backgroundTint="@color/green01"
+            android:background="@drawable/btn_save"
             android:includeFontPadding="false"
             android:text="Lưu"
             app:cornerRadius="24dp" />
     </androidx.appcompat.widget.LinearLayoutCompat>
+
 </androidx.core.widget.NestedScrollView>

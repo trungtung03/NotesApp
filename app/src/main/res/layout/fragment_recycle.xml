@@ -24,13 +24,33 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/item_rcv_list_note" />
 
+    <RelativeLayout
+        android:id="@+id/LayoutNoDataTrash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
         <ImageView
             android:id="@+id/ImageRecycle"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:scaleType="fitXY"
-            android:src="@drawable/recycle" />
+            android:src="@drawable/trash_file" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text3"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ImageRecycle"
+            android:layout_centerHorizontal="true"
+            android:text="Bạn không có ghi chú nào trong thùng rác !"/>
+
+    </RelativeLayout>
 
     </RelativeLayout>
 

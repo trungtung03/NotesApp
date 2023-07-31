@@ -341,9 +341,9 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>() {
             mListData.addAll(it)
             mNoteAdapter.setData(mListData)
             if (it.size > 0) {
-                mBinding.ImageNotebook.visibility = View.GONE
+                mBinding.LayoutNoData.visibility = View.GONE
             } else {
-                mBinding.ImageNotebook.visibility = View.VISIBLE
+                mBinding.LayoutNoData.visibility = View.VISIBLE
             }
         }
     }

@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
 import com.example.notepad.NotesDatabaseHelper
@@ -325,8 +326,7 @@ class TrashCanFragment : BaseFragment<FragmentRecycleBinding>() {
                 }
             })
 
-        mBinding.RecyclerTrashCan.layoutManager =
-            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        mBinding.RecyclerTrashCan.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
         mBinding.RecyclerTrashCan.adapter = mNoteAdapter
     }
 
@@ -337,9 +337,9 @@ class TrashCanFragment : BaseFragment<FragmentRecycleBinding>() {
             mListData.addAll(it)
             mNoteAdapter.setData(mListData)
             if (it.size > 0) {
-                mBinding.ImageRecycle.visibility = View.GONE
+                mBinding.LayoutNoDataTrash.visibility = View.GONE
             } else {
-                mBinding.ImageRecycle.visibility = View.VISIBLE
+                mBinding.LayoutNoDataTrash.visibility = View.VISIBLE
             }
         }
     }

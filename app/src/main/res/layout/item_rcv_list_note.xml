@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/layout_7"
             android:padding="5dp"
-            android:paddingStart="20dp"
+            android:paddingStart="10dp"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -37,10 +37,10 @@
             android:layout_marginTop="5dp"
             android:maxLines="5"
             android:padding="5dp"
-            android:paddingStart="20dp"
+            android:paddingStart="10dp"
             android:textColor="@color/Grey"
             android:textSize="16sp"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,17 +49,19 @@
 
             <TextView
                 android:id="@+id/TextViewTimeRcv"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/TextViewNotesRcv"
                 android:layout_marginTop="5dp"
-                android:padding="5dp"
-                android:paddingStart="20dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingStart="10dp"
                 android:textColor="@color/Grey"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:visibility="visible" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_marginLeft="20dp"
                 android:id="@+id/layout_7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -67,18 +69,14 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_btn_fgm"
                 android:orientation="horizontal"
-                android:paddingStart="10dp"
-                android:paddingEnd="5dp"
-                android:visibility="gone">
+                android:visibility="visible">
 
-                <TextView
+                <ImageView
                     android:id="@+id/TextViewNotiRcv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_marginEnd="5dp"
-                    android:text="Hẹn giờ"
-                    android:textColor="@color/Black"
-                    android:textSize="14sp"
+                    android:src="@drawable/clock"
                     app:layout_constraintEnd_toStartOf="@id/ButtonClearRcv"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -88,6 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
+                    android:layout_marginEnd="3dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/close"
                     app:layout_constraintBottom_toBottomOf="@id/TextViewNotiRcv"
@@ -95,17 +94,19 @@
                     app:layout_constraintTop_toTopOf="@id/TextViewNotiRcv" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/ImageLockRcv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="center"
-            android:src="@drawable/lock_note"
-            android:visibility="visible" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ImageLockRcv"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:src="@drawable/lock_note"
+        android:visibility="visible" />
 
 </androidx.cardview.widget.CardView>

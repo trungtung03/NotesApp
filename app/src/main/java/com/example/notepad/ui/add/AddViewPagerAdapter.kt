@@ -23,8 +23,8 @@ class AddViewPagerAdapter(fragmentManager: FragmentManager, behavior: Int) :
 
     override fun getPageTitle(position: Int): CharSequence? {
         return when (position) {
-             0 -> "Chi"
-            1-> "Thu"
+             0 -> "Khoản Chi"
+            1-> "Khoản Thu"
             else -> super.getPageTitle(position)
 
         }

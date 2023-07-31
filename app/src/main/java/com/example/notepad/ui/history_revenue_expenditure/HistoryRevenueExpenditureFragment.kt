@@ -51,13 +51,13 @@ class HistoryRevenueExpenditureFragment :
                     binding.tab1.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            R.color.white
+                            R.color.LightBlue500
                         )
                     )
                     binding.tab2.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            R.color.black
+                            R.color.Grey
                         )
                     )
                     binding.select.animate().x(0f).duration = 100
@@ -65,13 +65,13 @@ class HistoryRevenueExpenditureFragment :
                     binding.tab1.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            R.color.black
+                            R.color.Grey
                         )
                     )
                     binding.tab2.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            R.color.white
+                            R.color.LightBlue500
                         )
                     )
                     val size: Int = binding.tab2.width
@@ -87,14 +87,14 @@ class HistoryRevenueExpenditureFragment :
 
         })
         binding.tab1.click {
-            binding.tab1.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            binding.tab2.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            binding.tab1.setTextColor(ContextCompat.getColor(requireContext(), R.color.LightBlue500))
+            binding.tab2.setTextColor(ContextCompat.getColor(requireContext(), R.color.Grey))
             binding.select.animate().x(0f).duration = 100
             binding.viewPager.currentItem = 0
         }
         binding.tab2.click {
-            binding.tab1.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-            binding.tab2.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            binding.tab1.setTextColor(ContextCompat.getColor(requireContext(), R.color.Grey))
+            binding.tab2.setTextColor(ContextCompat.getColor(requireContext(), R.color.LightBlue500))
             val size: Int = binding.tab2.width
             binding.select.animate().x(size.toFloat()).duration = 100
             binding.viewPager.currentItem = 1

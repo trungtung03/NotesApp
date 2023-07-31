@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notepad.MainApp
 import com.example.notepad.MyAlarmManager
 import com.example.notepad.NotesDatabaseHelper
@@ -313,8 +314,7 @@ class ArchiveFragment : BaseFragment<FragmentArchiveBinding>() {
                 }
             })
 
-        mBinding.RecyclerArchive.layoutManager =
-            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        mBinding.RecyclerArchive.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
         mBinding.RecyclerArchive.adapter = mNoteAdapter
     }
 
@@ -325,9 +325,9 @@ class ArchiveFragment : BaseFragment<FragmentArchiveBinding>() {
             mListData.addAll(it)
             mNoteAdapter.setData(mListData)
             if (it.size > 0) {
-                mBinding.ImageArchive.visibility = View.GONE
+                mBinding.LayoutNoDataArchive.visibility = View.GONE
             } else {
-                mBinding.ImageArchive.visibility = View.VISIBLE
+                mBinding.LayoutNoDataArchive.visibility = View.VISIBLE
             }
         }
     }
