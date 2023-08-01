@@ -47,19 +47,19 @@ class HomeFragment : BaseFragmentWithBinding<FragmentHomeBinding>() {
             val entries = ArrayList<PieEntry>()
             val money = it.second
             val first = it.first
-            val title = arrayListOf<String>("Tổng thu", "Tổng chi", "Tiết kiệm")
+            val title = arrayListOf("Tổng thu", "Tổng chi", "Tiết kiệm")
+            val colors = arrayListOf(
+                resources.getColor(R.color.MediumVioletRed),
+                resources.getColor(R.color.Cyan3),
+                resources.getColor(R.color.DarkGoldenrod2)
+            )
             for (i in 0 until it.first.size) {
-                Log.d("Tổng thu", ("${first[i]} | ${money[i]} Tr").toString())
-                entries.add(PieEntry(first[i], "${money[i]} Tr\n${title[i]}"))
+                entries.add(PieEntry(first[i], "${title[i]}\n${money[i]} Tr"))
             }
 
             val dataSet = PieDataSet(entries, "")
             dataSet.setDrawValues(false)
 
-            val colors = ArrayList<Int>()
-            colors.add(resources.getColor(R.color.Coral))
-            colors.add(resources.getColor(R.color.Orange))
-            colors.add(resources.getColor(R.color.Grey))
             dataSet.colors = colors
             val pieData = PieData(dataSet)
 
