@@ -34,23 +34,7 @@ class HomeViewModel(context: Context) : ViewModel() {
     private val _listCollect: MutableLiveData<List<Collect>> = MutableLiveData(arrayListOf())
     val listCollect: LiveData<List<Collect>> = _listCollect
 
-    fun init() {
-        viewModelScope.launch {
-            var money: List<Money> = arrayListOf()
-            val getDataMonet = async {
-                money = repository.getMoney()
-                if (money.isEmpty()) {
-                    val addMoney = async {
-                        repository.addMoney(Money(money = 0))
-                        _money.postValue(Money(money = 0))
 
-                    }
-                    addMoney.await()
-                } else _money.postValue(repository.getMoney().last())
-            }
-            getDataMonet.await()
-        }
-    }
 
     fun getListSpending() {
         viewModelScope.launch {
@@ -103,7 +87,11 @@ class HomeViewModel(context: Context) : ViewModel() {
             }.await()
             if (listTotalMoney[0] - listTotalMoney[1] > 0) {
                 listTotalMoney.add(listTotalMoney[0] - listTotalMoney[1])
-            } else listTotalMoney.add(getMillionVND(0.0))
+                _money.postValue(Money(money= ((listTotalMoney[0] - listTotalMoney[1])*1000000.0).toInt()))
+            } else {
+                listTotalMoney.add(getMillionVND(0.0))
+                _money.postValue(Money(money= 0))
+            }
             when (getComparisonMoneyCollectAndSpending(listTotalMoney)) {
                 1 -> {
                     if (listTotalMoney[0] > 0) {

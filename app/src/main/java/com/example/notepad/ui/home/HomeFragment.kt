@@ -37,7 +37,6 @@ class HomeFragment : BaseFragmentWithBinding<FragmentHomeBinding>() {
 
 
     override fun init() {
-        viewModel.init()
         viewModel.getTotalExpenditure()
     }
 
@@ -54,7 +53,7 @@ class HomeFragment : BaseFragmentWithBinding<FragmentHomeBinding>() {
                 resources.getColor(R.color.DarkGoldenrod2)
             )
             for (i in 0 until it.first.size) {
-                entries.add(PieEntry(first[i], "${title[i]}\n${money[i]} Tr"))
+                entries.add(PieEntry(first[i], "${title[i]} ${money[i]} Tr"))
             }
 
             val dataSet = PieDataSet(entries, "")
